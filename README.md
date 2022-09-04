@@ -16,17 +16,19 @@ Implementation of C++ standard template library containers: *list, map, queue, s
 - methods for checking if a container is full (e.g. the number of elements in the container, check if the container is empty)
 - methods for changing the container (removing and adding new elements, cleaning the container)
 - methods for dealing with the container iterator.
+
 ### Goals
 
 - [ ] Outline the project structure
 - [ ] Integrate CMake
 - [ ] Integrate Gtest
-- [ ] List class
-- [ ] Map class
-- [ ] Queue class
-- [ ] Set class
-- [ ] Stack class
 - [ ] Vector class
+- [ ] Array class
+- [ ] List class
+- [ ] Queue class
+- [ ] Stack class
+- [ ] Map class
+- [ ] Set class
 
 ### Build
 
