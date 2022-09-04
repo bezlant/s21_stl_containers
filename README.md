@@ -606,13 +606,14 @@ This table contains the public methods for viewing the container:
 - [ ] Outline the project structure
 - [ ] Integrate CMake
 - [ ] Integrate Gtest
-- [ ] List class
-- [ ] Map class
-- [ ] Queue class
-- [ ] Set class
-- [ ] Stack class
 - [ ] Vector class
-- [ ] Multiset class
+- [ ] Array class
+- [ ] List class
+- [ ] Queue class
+- [ ] Stack class
+- [ ] Map class
+- [ ] Set class
+
 
 ### Build
 
