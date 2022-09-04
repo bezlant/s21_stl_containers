@@ -5,8 +5,8 @@
 
 template <typename T> class Vector {
   private:
-    size_t m_size;
-    size_t m_capacity;
+    std::size_t m_size;
+    std::size_t m_capacity;
     T *ptr;
 };
 
