@@ -2,6 +2,7 @@
 #define S21_ARRAY_H_
 
 #include <initializer_list>
+#include <iostream>
 #include <algorithm>
 
 namespace s21 {
@@ -16,11 +17,21 @@ class Array {
     using size_type = std::size_t;
 
   public:
-    Array();
-    explicit Array(std::initializer_list<value_type> const &items);
-    Array(const Array &rhs);
-    Array(Array &&rhs);
-    ~Array();
+    Array() {
+    }
+
+    explicit Array(std::initializer_list<value_type> const &items) {
+    }
+
+    Array(const Array &rhs) {
+    }
+
+    Array(Array &&rhs) {
+    }
+
+    ~Array() {
+    }
+
     Array &operator=(Array &&rhs);
 
   public:
