@@ -21,18 +21,26 @@ class Array {
     }
 
     explicit Array(std::initializer_list<value_type> const &items) {
+        if (items.size() != S)
+            throw "Initializer_list's size is not the same as the array's size";
+
+        for (std::size_t i = 0; i < S; ++i)
+            m_Data[i] = items[i];
     }
 
     Array(const Array &rhs) {
+        if (S != rhs.size())
+            throw "Array sizes aren't equal -> can't copy";
+
+        for (size_type i = 0; i < S; ++i)
+            m_Data[i] = rhs.m_Data[i];
     }
 
-    Array(Array &&rhs) {
-    }
+    Array(Array &&rhs) = delete;
 
-    ~Array() {
-    }
+    ~Array();
 
-    Array &operator=(Array &&rhs);
+    Array &operator=(Array &&rhs) = delete;
 
   public:
     constexpr size_type size() const {
