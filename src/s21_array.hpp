@@ -2,6 +2,7 @@
 #define S21_ARRAY_H_
 
 #include <initializer_list>
+#include <iostream>
 #include <algorithm>
 
 namespace s21 {
@@ -15,38 +16,133 @@ class Array {
     using const_iterator = const T *;
     using size_type = std::size_t;
 
+    // Member functions
   public:
-    Array();
-    explicit Array(std::initializer_list<value_type> const &items);
-    Array(const Array &rhs);
-    Array(Array &&rhs);
-    ~Array();
-    Array &operator=(Array &&rhs);
+    Array() noexcept {
+    }
 
+    explicit Array(std::initializer_list<value_type> const &items) {
+        if (items.size() != S)
+            throw "Initializer_list's size is not the same as the array's size";
+
+        for (size_type i = 0; i < S; ++i)
+            m_Data[i] = items.begin()[i];
+    }
+
+    Array(const Array &rhs) {
+        if (S != rhs.size())
+            throw "Array sizes aren't equal -> can't copy";
+
+        for (size_type i = 0; i < S; ++i)
+            m_Data[i] = rhs.m_Data[i];
+    }
+
+    // This doesn't make sense to implement, since you can't move an array.
+    // (Assignment requirement)
+    Array(Array &&rhs) {
+        if (S != rhs.size())
+            throw "Array sizes aren't equal -> can't copy";
+
+        for (size_type i = 0; i < S; ++i)
+            m_Data[i] = rhs.m_Data[i];
+    }
+
+    ~Array() {
+    }
+
+    // This doesn't make sense to implement, since you can't move an array.
+    // (Assignment requirement)
+    Array &operator=(Array &&rhs) {
+        if (S != rhs.size())
+            throw "Array sizes aren't equal -> can't copy";
+
+        for (size_type i = 0; i < S; ++i)
+            m_Data[i] = rhs.m_Data[i];
+
+        return *this;
+    }
+
+    Array &operator=(const Array &rhs) {
+        if (S != rhs.size())
+            throw "Array sizes aren't equal -> can't copy";
+
+        for (size_type i = 0; i < S; ++i)
+            m_Data[i] = rhs.m_Data[i];
+
+        return *this;
+    }
+
+    // Element access
   public:
-    constexpr size_type size() const {
+    reference at(size_type index) {
+        if (index >= S)
+            throw std::out_of_range("The index is out of range");
+
+        return m_Data[index];
+    }
+
+    constexpr reference operator[](size_type index) {
+        if (index >= S)
+            throw std::out_of_range("The index is out of range");
+
+        return m_Data[index];
+    }
+
+    constexpr reference front() {
+        if (S == 0)
+            throw "Calling front on empty containers results in UB";
+        return m_Data[0];
+    }
+
+    constexpr reference back() {
+        if (S == 0)
+            throw "Calling back on empty containers results in UB";
+        return m_Data[S - 1];
+    }
+
+    constexpr iterator data() noexcept {
+        return m_Data;
+    }
+
+    // Iterators
+  public:
+    constexpr iterator begin() noexcept {
+        return m_Data;
+    }
+
+    constexpr iterator end() noexcept {
+        return m_Data + S;
+    }
+
+    // Capacity
+  public:
+    constexpr size_type size() const noexcept {
         return S;
     }
 
-    reference operator[](size_type index) {
-        return m_Data[index];
+    [[nodiscard]] constexpr bool empty() const noexcept {
+        return begin() != end();
     }
 
-    const_reference operator[](size_type index) const {
-        return m_Data[index];
+    constexpr size_type max_size() const noexcept {
+        return S;
     }
 
-    iterator data() {
-        return m_Data;
+    // Modifiers
+  public:
+    constexpr void swap(Array &other) noexcept {
+        Array<T, S> tmp = *this;
+        *this = other;
+        other = tmp;
     }
 
-    const_iterator data() const {
-
-        return m_Data;
+    constexpr void fill(const_reference value) {
+        for (auto *it = begin(); it != end(); it++)
+            *it = value;
     }
 
   private:
-    value_type m_Data[S];
+    value_type m_Data[S] = {};
 };
 
 }  // namespace s21
