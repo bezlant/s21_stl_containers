@@ -6,6 +6,18 @@
 #include <algorithm>
 
 namespace s21 {
+
+class UbException : public std::exception {
+  private:
+    std::string message =
+        "Calling front or back on empty containers results in UB";
+
+  public:
+    const char *what() const noexcept override {
+        return message.c_str();
+    }
+};
+
 template <typename T, std::size_t S>
 class Array {
   public:
@@ -36,41 +48,12 @@ class Array {
         for (size_type i = 0; i < S; ++i)
             m_Data[i] = rhs.m_Data[i];
     }
+    Array &operator=(const Array &rhs) = default;
 
-    // This doesn't make sense to implement, since you can't move an array.
-    // (Assignment requirement)
-    Array(Array &&rhs) {
-        if (S != rhs.size())
-            throw "Array sizes aren't equal -> can't copy";
+    Array(Array &&rhs) = default;
+    Array &operator=(Array &&rhs) = default;
 
-        for (size_type i = 0; i < S; ++i)
-            m_Data[i] = rhs.m_Data[i];
-    }
-
-    ~Array() {
-    }
-
-    // This doesn't make sense to implement, since you can't move an array.
-    // (Assignment requirement)
-    Array &operator=(Array &&rhs) {
-        if (S != rhs.size())
-            throw "Array sizes aren't equal -> can't copy";
-
-        for (size_type i = 0; i < S; ++i)
-            m_Data[i] = rhs.m_Data[i];
-
-        return *this;
-    }
-
-    Array &operator=(const Array &rhs) {
-        if (S != rhs.size())
-            throw "Array sizes aren't equal -> can't copy";
-
-        for (size_type i = 0; i < S; ++i)
-            m_Data[i] = rhs.m_Data[i];
-
-        return *this;
-    }
+    ~Array() = default;
 
     // Element access
   public:
@@ -81,22 +64,42 @@ class Array {
         return m_Data[index];
     }
 
-    constexpr reference operator[](size_type index) {
+    constexpr const_reference at(size_type index) const {
         if (index >= S)
             throw std::out_of_range("The index is out of range");
 
         return m_Data[index];
     }
 
+    constexpr reference operator[](size_type index) {
+        return this->at(index);
+    }
+
+    constexpr const_reference operator[](size_type index) const {
+        return this->at(index);
+    }
+
     constexpr reference front() {
         if (S == 0)
-            throw "Calling front on empty containers results in UB";
+            throw UbException{};
+        return m_Data[0];
+    }
+
+    constexpr const_reference front() const {
+        if (S == 0)
+            throw UbException{};
         return m_Data[0];
     }
 
     constexpr reference back() {
         if (S == 0)
-            throw "Calling back on empty containers results in UB";
+            throw UbException{};
+        return m_Data[S - 1];
+    }
+
+    constexpr const_reference back() const {
+        if (S == 0)
+            throw UbException{};
         return m_Data[S - 1];
     }
 
@@ -104,13 +107,23 @@ class Array {
         return m_Data;
     }
 
+    constexpr const T *data() const noexcept {
+        return m_Data;
+    }
     // Iterators
   public:
     constexpr iterator begin() noexcept {
         return m_Data;
     }
 
+    constexpr const_iterator begin() const noexcept {
+        return m_Data;
+    }
     constexpr iterator end() noexcept {
+        return m_Data + S;
+    }
+
+    constexpr const_iterator end() const noexcept {
         return m_Data + S;
     }
 
