@@ -1,22 +1,11 @@
 #ifndef S21_ARRAY_H_
 #define S21_ARRAY_H_
 
+#include "s21_exceptions.hpp"
 #include <initializer_list>
-#include <iostream>
 #include <algorithm>
 
 namespace s21 {
-
-class UbException : public std::exception {
-  private:
-    std::string message =
-        "Calling front or back on empty containers results in UB";
-
-  public:
-    const char *what() const noexcept override {
-        return message.c_str();
-    }
-};
 
 template <typename T, std::size_t S>
 class Array {
@@ -81,25 +70,25 @@ class Array {
 
     constexpr reference front() {
         if (S == 0)
-            throw UbException{};
+            throw FrontBackUbException{};
         return m_Data[0];
     }
 
     constexpr const_reference front() const {
         if (S == 0)
-            throw UbException{};
+            throw FrontBackUbException{};
         return m_Data[0];
     }
 
     constexpr reference back() {
         if (S == 0)
-            throw UbException{};
+            throw FrontBackUbException{};
         return m_Data[S - 1];
     }
 
     constexpr const_reference back() const {
         if (S == 0)
-            throw UbException{};
+            throw FrontBackUbException{};
         return m_Data[S - 1];
     }
 
@@ -143,13 +132,13 @@ class Array {
 
     // Modifiers
   public:
-    constexpr void swap(Array &other) noexcept {
+    void swap(Array &other) noexcept {
         Array<T, S> tmp = *this;
         *this = other;
         other = tmp;
     }
 
-    constexpr void fill(const_reference value) {
+    void fill(const_reference value) {
         for (auto *it = begin(); it != end(); it++)
             *it = value;
     }
