@@ -70,25 +70,25 @@ class Array {
 
     constexpr reference front() {
         if (S == 0)
-            throw FrontBackUbException{};
+            throw ZeroSizeException{};
         return m_Data[0];
     }
 
     constexpr const_reference front() const {
         if (S == 0)
-            throw FrontBackUbException{};
+            throw ZeroSizeException{};
         return m_Data[0];
     }
 
     constexpr reference back() {
         if (S == 0)
-            throw FrontBackUbException{};
+            throw ZeroSizeException{};
         return m_Data[S - 1];
     }
 
     constexpr const_reference back() const {
         if (S == 0)
-            throw FrontBackUbException{};
+            throw ZeroSizeException{};
         return m_Data[S - 1];
     }
 
@@ -96,7 +96,7 @@ class Array {
         return m_Data;
     }
 
-    constexpr const T *data() const noexcept {
+    constexpr const_iterator data() const noexcept {
         return m_Data;
     }
     // Iterators
@@ -108,6 +108,7 @@ class Array {
     constexpr const_iterator begin() const noexcept {
         return m_Data;
     }
+
     constexpr iterator end() noexcept {
         return m_Data + S;
     }
