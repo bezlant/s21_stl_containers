@@ -191,10 +191,10 @@ class Vector {
         m_Size = 0;
     }
 
-    constexpr iterator insert(iterator pos, const_reference value) {
+    constexpr iterator insert(const_iterator pos, const_reference value) {
         if (pos - begin() > end() - begin())
-            throw "Unable to insert into a position out of range of begin() to "
-                  "end()";
+            throw std::out_of_range("Unable to insert into a position out of "
+                                    "range of begin() to end()");
 
         size_type new_size = size() + 1;
         size_type index = pos - begin();
@@ -217,6 +217,12 @@ class Vector {
 
         m_Size = new_size;
         return begin() + index;
+    }
+
+    constexpr iterator erase(const_iterator pos) {
+        if (pos - begin() > end() - begin())
+            throw std::out_of_range("Unable to insert into a position out of "
+                                    "range of begin() to end()");
     }
 
   private:
