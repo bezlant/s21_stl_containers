@@ -224,10 +224,11 @@ class Vector {
     size_type m_Capacity;
     iterator m_Buffer;
 
-    void ReallocVector(size_type size) {
-        Vector<value_type> tmp(size);
-        std::copy(begin(), end(), tmp.begin());
-        *this = std::move(tmp);
+    void ReallocVector(size_type new_size) {
+        iterator tmp = new value_type[new_size];
+        std::copy(begin(), end(), tmp);
+        delete[] m_Buffer;
+        m_Buffer = tmp;
     }
 };
 
