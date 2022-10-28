@@ -30,7 +30,7 @@ class Vector {
         m_Size = size;
         m_Capacity = size;
         m_Buffer = nullptr;
-        if (m_Size > 0) {
+        if (size > 0) {
             m_Buffer = new value_type[m_Size];
         }
     }
@@ -62,7 +62,7 @@ class Vector {
     }
 
     Vector &operator=(Vector &&rhs) {
-        if (*this == rhs)
+        if (this == &rhs)
             return *this;
 
         m_Size = std::exchange(rhs.m_Size, 0);
@@ -187,17 +187,47 @@ class Vector {
         ReallocVector(m_Size);
     }
 
+    constexpr void clear() noexcept {
+        m_Size = 0;
+    }
+
+    constexpr iterator insert(iterator pos, const_reference value) {
+        if (pos - begin() > end() - begin())
+            throw "Unable to insert into a position out of range of begin() to "
+                  "end()";
+
+        size_type new_size = size() + 1;
+        size_type index = pos - begin();
+
+        if (new_size > capacity()) {
+            m_Capacity = m_Size * 2;
+            iterator tmp = new value_type[m_Capacity];
+            std::copy(begin(), pos, tmp);
+
+            *(tmp + index) = value;
+
+            std::copy(pos, end(), tmp + index + 1);
+            delete[] m_Buffer;
+
+            m_Buffer = tmp;
+        } else {
+            std::copy(begin() + index, end(), begin() + index + 1);
+            *(begin() + index) = value;
+        }
+
+        m_Size = new_size;
+        return begin() + index;
+    }
+
   private:
     size_type m_Size;
     size_type m_Capacity;
     iterator m_Buffer;
 
     void ReallocVector(size_type size) {
-        iterator tmp = new value_type[size];
-        std::copy(begin(), end(), tmp);
-
-        delete[] m_Buffer;
-        m_Buffer = tmp;
+        Vector<value_type> tmp(size);
+        std::copy(begin(), end(), tmp.begin());
+        *this = std::move(tmp);
     }
 };
 
