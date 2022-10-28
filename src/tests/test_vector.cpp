@@ -43,3 +43,20 @@ TEST(vector, insert_realloc1) {
     ASSERT_EQ(got.size(), want.size());
     ASSERT_EQ(got.capacity(), want.capacity());
 }
+
+TEST(vector, insert_norealloc) {
+    s21::Vector<int> got{1, 2, 3, 4, 5, 6};
+    got.reserve(100);
+    auto *itGot = got.insert(got.begin() + 3, 5);
+    s21::Vector<int> want{1, 2, 3, 4, 5, 6};
+    want.reserve(100);
+    auto *itWant = want.insert(want.begin() + 3, 5);
+
+    ASSERT_EQ(*itGot, *itWant);
+
+    for (auto i = want.size() - 1; i < want.size(); --i)
+        ASSERT_EQ(got[i], want[i]);
+
+    ASSERT_EQ(got.size(), want.size());
+    ASSERT_EQ(got.capacity(), want.capacity());
+}
