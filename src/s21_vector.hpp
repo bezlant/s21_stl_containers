@@ -172,7 +172,6 @@ class Vector {
             throw std::length_error("Reserve capacity can't be larger than "
                                     "Vector<T>::max_size()");
 
-        m_Capacity = new_cap;
         ReallocVector(new_cap);
     }
 
@@ -226,9 +225,40 @@ class Vector {
         auto removed_index = pos - begin();
 
         std::copy(begin(), pos, m_Buffer);
-        std::copy(pos + 1, end(), m_Buffer);
+        std::copy(pos + 1, end(), m_Buffer + removed_index);
 
+        --m_Size;
         return begin() + removed_index;
+    }
+
+    constexpr void push_back(const_reference value) {
+        if (size() + 1 > capacity())
+            ReallocVector(m_Size == 0 ? 1 : m_Size * 2);
+
+        m_Buffer[m_Size] = value;
+        ++m_Size;
+    }
+
+    constexpr void pop_back() {
+        if (m_Size == 0)
+            throw std::length_error(
+                "Calling pop_back on an empty container results in UB");
+        m_Size--;
+    }
+
+    constexpr void swap(Vector &other) noexcept {
+        iterator tmp_buffer = m_Buffer;
+        size_type tmp_size = m_Size;
+        size_type tmp_capacity = m_Capacity;
+
+        m_Buffer = other.m_Buffer;
+        other.m_Buffer = tmp_buffer;
+
+        m_Size = other.m_Size;
+        other.m_Size = tmp_size;
+
+        m_Capacity = other.m_Capacity;
+        other.m_Capacity = tmp_capacity;
     }
 
   private:
@@ -241,6 +271,7 @@ class Vector {
         std::copy(begin(), end(), tmp);
         delete[] m_Buffer;
         m_Buffer = tmp;
+        m_Capacity = new_size;
     }
 };
 
