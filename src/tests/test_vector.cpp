@@ -154,3 +154,22 @@ TEST(vector, pop_empty) {
     s21::Vector<int> got;
     ASSERT_ANY_THROW(got.pop_back());
 }
+
+TEST(vector, swap) {
+    s21::Vector<int> a{1, 2, 3, 4};
+    s21::Vector<int> b{4, 3, 2, 1};
+    auto want_a = b;
+    auto want_b = a;
+
+    a.swap(b);
+
+    for (auto i = want_a.size() - 1; i < want_a.size(); --i)
+        ASSERT_EQ(want_a[i], a[i]);
+    ASSERT_EQ(want_a.size(), a.size());
+    ASSERT_EQ(want_a.capacity(), a.capacity());
+
+    for (auto i = want_b.size() - 1; i < want_b.size(); --i)
+        ASSERT_EQ(want_b[i], b[i]);
+    ASSERT_EQ(want_b.size(), b.size());
+    ASSERT_EQ(want_b.capacity(), b.capacity());
+}
