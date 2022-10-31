@@ -60,3 +60,53 @@ TEST(vector, insert_norealloc) {
     ASSERT_EQ(got.size(), want.size());
     ASSERT_EQ(got.capacity(), want.capacity());
 }
+
+TEST(vector, erase) {
+    s21::Vector<int> got{1, 2, 3, 4, 5, 6};
+    auto *itGot = got.erase(got.begin() + 3);
+    s21::Vector<int> want{1, 2, 3, 4, 5, 6};
+    auto *itWant = want.erase(want.begin() + 3);
+
+    ASSERT_EQ(*itGot, *itWant);
+
+    for (auto i = want.size() - 1; i < want.size(); --i)
+        ASSERT_EQ(got[i], want[i]);
+
+    ASSERT_EQ(got.size(), want.size());
+    ASSERT_EQ(got.capacity(), want.capacity());
+}
+
+TEST(vector, erase_edge) {
+    s21::Vector<int> got{1};
+    auto *itGot = got.erase(got.begin());
+    s21::Vector<int> want{1};
+    auto *itWant = want.erase(want.begin());
+
+    ASSERT_EQ(*itGot, *itWant);
+
+    for (auto i = want.size() - 1; i < want.size(); --i)
+        ASSERT_EQ(got[i], want[i]);
+
+    ASSERT_EQ(got.size(), want.size());
+    ASSERT_EQ(got.capacity(), want.capacity());
+}
+
+TEST(vector, erase_edge1) {
+    s21::Vector<int> got{1, 2, 3, 4, 5};
+    auto *itGot = got.erase(got.begin() + 4);
+    s21::Vector<int> want{1, 2, 3, 4, 5};
+    auto *itWant = want.erase(want.begin() + 4);
+
+    ASSERT_EQ(*itGot, *itWant);
+
+    for (auto i = want.size() - 1; i < want.size(); --i)
+        ASSERT_EQ(got[i], want[i]);
+
+    ASSERT_EQ(got.size(), want.size());
+    ASSERT_EQ(got.capacity(), want.capacity());
+}
+
+TEST(vector, erase_exception) {
+    s21::Vector<int> got{1};
+    ASSERT_ANY_THROW(got.erase(got.begin() + 1));
+}
