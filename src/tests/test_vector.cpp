@@ -85,6 +85,34 @@ TEST_F(VectorTest, reserve) {
     ASSERT_EQ(vec0_.capacity(), s.capacity());
 }
 
+TEST_F(VectorTest, shrink) {
+    std::vector s{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    s.reserve(6969);
+    vec0_.reserve(6969);
+
+    s.shrink_to_fit();
+    vec0_.shrink_to_fit();
+    ASSERT_EQ(vec0_.size(), s.size());
+    ASSERT_EQ(vec0_.capacity(), s.capacity());
+}
+
+TEST_F(VectorTest, shrink1) {
+    std::vector<int> s;
+
+    s.shrink_to_fit();
+    vec3_.shrink_to_fit();
+    ASSERT_EQ(vec3_.size(), s.size());
+    ASSERT_EQ(vec3_.capacity(), s.capacity());
+}
+
+TEST_F(VectorTest, clear) {
+    std::vector s{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    s.clear();
+    vec0_.clear();
+    ASSERT_EQ(vec0_.size(), s.size());
+    ASSERT_EQ(vec0_.capacity(), s.capacity());
+}
+
 TEST_F(VectorTest, insert_realloc) {
     vec0_.insert(vec0_.begin() + 3, 5);
     std::vector<int> want{1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -109,6 +137,32 @@ TEST_F(VectorTest, insert_realloc1) {
 
     ASSERT_EQ(vec2_.size(), want.size());
     ASSERT_EQ(vec2_.capacity(), want.capacity());
+}
+
+TEST_F(VectorTest, insert_realloc2) {
+    auto itGot = vec3_.insert(vec3_.begin(), 0);
+    std::vector<int> want{};
+    auto itWant = want.insert(want.begin(), 0);
+
+    ASSERT_EQ(*itGot, *itWant);
+
+    for (auto i = want.size() - 1; i < want.size(); --i)
+        ASSERT_EQ(vec3_[i], want[i]);
+
+    ASSERT_EQ(vec3_.size(), want.size());
+    ASSERT_EQ(vec3_.capacity(), want.capacity());
+}
+
+TEST_F(VectorTest, insert_realloc3) {
+    vec0_.insert(vec0_.end(), 0);
+    std::vector<int> want{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    want.insert(want.end(), 0);
+
+    for (auto i = want.size() - 1; i < want.size(); --i)
+        ASSERT_EQ(vec0_[i], want[i]);
+
+    ASSERT_EQ(vec0_.size(), want.size());
+    ASSERT_EQ(vec0_.capacity(), want.capacity());
 }
 
 TEST_F(VectorTest, insert_norealloc) {
@@ -142,11 +196,10 @@ TEST_F(VectorTest, erase) {
 }
 
 TEST_F(VectorTest, erase_edge) {
-    auto itGot = vec2_.erase(vec2_.begin());
+    vec2_.erase(vec2_.begin());
     std::vector<int> want{1};
-    auto itWant = want.erase(want.begin());
 
-    ASSERT_EQ(*itGot, *itWant);
+    want.erase(want.begin());
 
     for (auto i = want.size() - 1; i < want.size(); --i)
         ASSERT_EQ(vec2_[i], want[i]);
