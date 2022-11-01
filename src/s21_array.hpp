@@ -19,8 +19,7 @@ class Array {
 
     // Member functions
   public:
-    Array() noexcept {
-    }
+    Array() noexcept = default;
 
     explicit Array(std::initializer_list<value_type> const &items) {
         if (items.size() != S)
@@ -30,19 +29,12 @@ class Array {
             m_Data[i] = items.begin()[i];
     }
 
-    Array(const Array &rhs) {
-        if (S != rhs.size())
-            throw "Array sizes aren't equal -> can't copy";
-
-        for (size_type i = 0; i < S; ++i)
-            m_Data[i] = rhs.m_Data[i];
-    }
+    // Default works as intented and arrays of different sizes won't compile.
+    Array(const Array &rhs) noexcept = default;
     Array &operator=(const Array &rhs) = default;
-
     Array(Array &&rhs) = default;
     Array &operator=(Array &&rhs) = default;
-
-    ~Array() = default;
+    ~Array() noexcept = default;
 
     // Element access
   public:
@@ -70,25 +62,25 @@ class Array {
 
     constexpr reference front() {
         if (S == 0)
-            throw FrontBackUbException{};
+            throw ZeroSizeException{};
         return m_Data[0];
     }
 
     constexpr const_reference front() const {
         if (S == 0)
-            throw FrontBackUbException{};
+            throw ZeroSizeException{};
         return m_Data[0];
     }
 
     constexpr reference back() {
         if (S == 0)
-            throw FrontBackUbException{};
+            throw ZeroSizeException{};
         return m_Data[S - 1];
     }
 
     constexpr const_reference back() const {
         if (S == 0)
-            throw FrontBackUbException{};
+            throw ZeroSizeException{};
         return m_Data[S - 1];
     }
 
@@ -96,7 +88,7 @@ class Array {
         return m_Data;
     }
 
-    constexpr const T *data() const noexcept {
+    constexpr const_iterator data() const noexcept {
         return m_Data;
     }
     // Iterators
@@ -108,6 +100,7 @@ class Array {
     constexpr const_iterator begin() const noexcept {
         return m_Data;
     }
+
     constexpr iterator end() noexcept {
         return m_Data + S;
     }
@@ -123,7 +116,7 @@ class Array {
     }
 
     [[nodiscard]] constexpr bool empty() const noexcept {
-        return begin() != end();
+        return begin() == end();
     }
 
     constexpr size_type max_size() const noexcept {
