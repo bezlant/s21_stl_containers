@@ -199,7 +199,7 @@ class Vector {
     }
 
     constexpr iterator insert(iterator pos, const_reference value) {
-        if (pos - begin() >= end() - begin())
+        if (pos - begin() > end() - begin())
             throw std::out_of_range("Unable to insert into a position out of "
                                     "range of begin() to end()");
 
@@ -207,7 +207,7 @@ class Vector {
         size_type index = pos - begin();
 
         if (new_size > capacity()) {
-            m_Capacity = m_Size * 2;
+            m_Capacity = m_Size == 0 ? 1 : m_Size * 2;
             iterator tmp = new value_type[m_Capacity];
             std::copy(begin(), pos, tmp);
 
