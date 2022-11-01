@@ -77,7 +77,6 @@ class Stack {
         std::swap(s, other.s);
     }
 
-  public:
   private:
     Container s;
 };
