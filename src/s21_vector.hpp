@@ -62,11 +62,25 @@ class Vector {
         m_Buffer = nullptr;
     }
 
-    Vector &operator=(Vector &&rhs) {
+    constexpr Vector &operator=(Vector &&rhs) {
         if (this != &rhs) {
             m_Size = std::exchange(rhs.m_Size, 0);
             m_Capacity = std::exchange(rhs.m_Capacity, 0);
             m_Buffer = std::exchange(rhs.m_Buffer, nullptr);
+        }
+
+        return *this;
+    }
+
+    constexpr Vector &operator=(const Vector &rhs) {
+        if (this != &rhs) {
+            delete[] m_Buffer;
+            if (rhs.m_Size > 0) {
+                m_Buffer = new value_type[rhs.m_Size];
+                std::copy(rhs.begin(), rhs.end(), m_Buffer);
+            }
+            m_Size = rhs.m_Size;
+            m_Capacity = rhs.m_Capacity;
         }
 
         return *this;
