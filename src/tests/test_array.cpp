@@ -1,4 +1,4 @@
-#include "../s21_containers.hpp"
+#include "../s21_array.hpp"
 #include "gtest/gtest.h"
 
 class ArrayTest : public ::testing::Test {
