@@ -59,15 +59,15 @@ class Vector {
 
     ~Vector() {
         delete[] m_Buffer;
+        m_Buffer = nullptr;
     }
 
     Vector &operator=(Vector &&rhs) {
-        if (this == &rhs)
-            return *this;
-
-        m_Size = std::exchange(rhs.m_Size, 0);
-        m_Capacity = std::exchange(rhs.m_Capacity, 0);
-        m_Buffer = std::exchange(rhs.m_Buffer, nullptr);
+        if (this != &rhs) {
+            m_Size = std::exchange(rhs.m_Size, 0);
+            m_Capacity = std::exchange(rhs.m_Capacity, 0);
+            m_Buffer = std::exchange(rhs.m_Buffer, nullptr);
+        }
 
         return *this;
     }
@@ -88,17 +88,11 @@ class Vector {
     }
 
     constexpr reference operator[](size_type pos) {
-        if (pos >= m_Size)
-            throw std::out_of_range(errOutOfRange);
-
-        return m_Buffer[pos];
+        return at(pos);
     }
 
     constexpr const_reference operator[](size_type pos) const {
-        if (pos >= m_Size)
-            throw std::out_of_range(errOutOfRange);
-
-        return m_Buffer[pos];
+        return at(pos);
     }
 
     constexpr reference front() {
@@ -207,7 +201,6 @@ class Vector {
 
             std::copy(pos, end(), tmp + index + 1);
             delete[] m_Buffer;
-
             m_Buffer = tmp;
         } else {
             std::copy(begin() + index, end(), begin() + index + 1);
@@ -243,7 +236,7 @@ class Vector {
         if (m_Size == 0)
             throw std::length_error(
                 "Calling pop_back on an empty container results in UB");
-        m_Size--;
+        --m_Size;
     }
 
     constexpr void swap(Vector &other) noexcept {
