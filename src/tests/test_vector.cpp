@@ -1,6 +1,10 @@
 #include "../s21_vector.hpp"
 #include "gtest/gtest.h"
 
+// NOTE: max_size is not tested because the MacOS result differs from the
+// implementation discribed here
+// https://en.cppreference.com/w/cpp/container/vector/max_size
+
 class VectorTest : public ::testing::Test {
   protected:
     void SetUp() override {
@@ -9,9 +13,34 @@ class VectorTest : public ::testing::Test {
     s21::Vector<int> vec0_{1, 2, 3, 4, 5, 6, 7, 8, 9};
     s21::Vector<int> vec1_{9, 8, 7, 6, 5, 4, 3, 2, 1};
     s21::Vector<int> vec2_{1};
+    s21::Vector<int> vec3_;
 };
 
-TEST(vector, default_constructor) {
+TEST_F(VectorTest, move_constructor) {
+    s21::Vector<int> v{std::move(vec0_)};
+    for (std::size_t i = 0; i < v.size(); ++i)
+        ASSERT_EQ(v[i], i + 1);
+}
+
+TEST_F(VectorTest, move_assignment) {
+    s21::Vector<int> v;
+    v = std::move(vec0_);
+    for (std::size_t i = 0; i < v.size(); ++i)
+        ASSERT_EQ(v[i], i + 1);
+}
+
+TEST_F(VectorTest, copy_assignment) {
+    s21::Vector<int> v;
+    v = vec0_;
+    for (std::size_t i = 0; i < v.size(); ++i)
+        ASSERT_EQ(v[i], i + 1);
+    ASSERT_EQ(v.size(), vec0_.size());
+    ASSERT_EQ(v.capacity(), vec0_.capacity());
+}
+
+TEST_F(VectorTest, default_constructor) {
+    ASSERT_TRUE(vec3_.empty());
+    ASSERT_EQ(vec3_.size(), 0);
 }
 
 TEST_F(VectorTest, initializer_list_constructor) {
@@ -24,6 +53,36 @@ TEST_F(VectorTest, copy_constructor) {
 
     for (std::size_t i = 0; i < vec0_.size(); ++i)
         ASSERT_EQ(vec0_[i], want[i]);
+}
+
+TEST_F(VectorTest, data) {
+    ASSERT_EQ(vec2_.data(), &vec2_[0]);
+    ASSERT_EQ(*vec2_.data(), vec2_[0]);
+    ASSERT_EQ(vec2_.data(), vec2_.begin());
+}
+
+TEST_F(VectorTest, empty) {
+    ASSERT_TRUE(vec3_.empty());
+    ASSERT_FALSE(vec1_.empty());
+}
+
+TEST_F(VectorTest, size) {
+    ASSERT_EQ(vec0_.size(), 9);
+    ASSERT_EQ(vec1_.size(), 9);
+    ASSERT_EQ(vec2_.size(), 1);
+    ASSERT_EQ(vec3_.size(), 0);
+    ASSERT_EQ(vec0_.capacity(), 9);
+    ASSERT_EQ(vec1_.capacity(), 9);
+    ASSERT_EQ(vec2_.capacity(), 1);
+    ASSERT_EQ(vec3_.capacity(), 0);
+}
+
+TEST_F(VectorTest, reserve) {
+    std::vector s{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    s.reserve(6969);
+    vec0_.reserve(6969);
+    ASSERT_EQ(vec0_.size(), s.size());
+    ASSERT_EQ(vec0_.capacity(), s.capacity());
 }
 
 TEST_F(VectorTest, insert_realloc) {
