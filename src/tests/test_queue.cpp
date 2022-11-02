@@ -1,29 +1,29 @@
-#include "../s21_stack.hpp"
+#include "../s21_queue.hpp"
 #include "gtest/gtest.h"
 
-class StackTest : public ::testing::Test {
+class QueueTest : public ::testing::Test {
   protected:
     void SetUp() override {
     }
 
-    s21::Stack<int> s0_{1, 2, 3, 4, 5};
-    s21::Stack<int> s1_{};
+    s21::Queue<int> s0_{1, 2, 3, 4, 5};
+    s21::Queue<int> s1_{};
 };
 
-TEST_F(StackTest, default_constructor) {
+TEST_F(QueueTest, default_constructor) {
     ASSERT_TRUE(s1_.empty());
     ASSERT_EQ(s1_.size(), 0);
 }
 
-TEST_F(StackTest, initializer_list_constructor) {
-    ASSERT_EQ(s0_.top(), 5);
+TEST_F(QueueTest, initializer_list_constructor) {
+    ASSERT_EQ(s0_.back(), 5);
     ASSERT_FALSE(s0_.empty());
     ASSERT_EQ(s0_.size(), 5);
     s0_.pop();
     ASSERT_EQ(s0_.size(), 4);
     s0_.pop();
     ASSERT_EQ(s0_.size(), 3);
-    ASSERT_EQ(s0_.top(), 3);
+    ASSERT_EQ(s0_.front(), 3);
     s0_.pop();
     s0_.pop();
     s0_.pop();
@@ -33,21 +33,21 @@ TEST_F(StackTest, initializer_list_constructor) {
     // ASSERT_ANY_THROW(s0_.pop());
 }
 
-TEST_F(StackTest, copy_constructor) {
-    s21::Stack copy(s0_);
-    ASSERT_EQ(copy.top(), s0_.top());
+TEST_F(QueueTest, copy_constructor) {
+    s21::Queue copy(s0_);
+    ASSERT_EQ(copy.front(), s0_.front());
     copy.pop();
     s0_.pop();
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
     copy.pop();
     s0_.pop();
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
     copy.pop();
     s0_.pop();
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
     copy.pop();
     s0_.pop();
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
     copy.pop();
     s0_.pop();
 
@@ -56,31 +56,32 @@ TEST_F(StackTest, copy_constructor) {
 
     copy.push(69);
     s0_.push(69);
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
+    ASSERT_EQ(copy.back(), s0_.back());
 }
 
-TEST_F(StackTest, move_constructor) {
-    s21::Stack moved(std::move(s0_));
+TEST_F(QueueTest, move_constructor) {
+    s21::Queue moved(std::move(s0_));
     ASSERT_EQ(moved.size(), 5);
-    ASSERT_EQ(moved.top(), 5);
+    ASSERT_EQ(moved.back(), 5);
 }
 
-TEST_F(StackTest, copy_assignment) {
-    s21::Stack<int> copy;
+TEST_F(QueueTest, copy_assignment) {
+    s21::Queue<int> copy;
     copy = s0_;
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
     copy.pop();
     s0_.pop();
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
     copy.pop();
     s0_.pop();
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
     copy.pop();
     s0_.pop();
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
     copy.pop();
     s0_.pop();
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
     copy.pop();
     s0_.pop();
 
@@ -89,17 +90,17 @@ TEST_F(StackTest, copy_assignment) {
 
     copy.push(69);
     s0_.push(69);
-    ASSERT_EQ(copy.top(), s0_.top());
+    ASSERT_EQ(copy.front(), s0_.front());
 }
 
-TEST_F(StackTest, move_assignment) {
-    s21::Stack<int> moved;
+TEST_F(QueueTest, move_assignment) {
+    s21::Queue<int> moved;
     moved = std::move(s0_);
     ASSERT_EQ(moved.size(), 5);
-    ASSERT_EQ(moved.top(), 5);
+    ASSERT_EQ(moved.back(), 5);
 }
 
-TEST_F(StackTest, swap) {
+TEST_F(QueueTest, swap) {
     ASSERT_EQ(s1_.size(), 0);
     ASSERT_EQ(s0_.size(), 5);
     ASSERT_FALSE(s0_.empty());
@@ -111,16 +112,16 @@ TEST_F(StackTest, swap) {
     ASSERT_EQ(s1_.size(), 5);
 }
 
-TEST_F(StackTest, push_refref_move) {
-    s21::Stack<std::vector<int>> sv;
+TEST_F(QueueTest, push_refref_move) {
+    s21::Queue<std::vector<int>> qv;
     std::vector<int> x{1, 2, 3, 4, 5};
 
-    sv.push(std::move(x));
+    qv.push(std::move(x));
 
     ASSERT_EQ(x.data(), nullptr);
 }
 
-TEST_F(StackTest, emplace) {
+TEST_F(QueueTest, emplace) {
     using std::string;
     struct S {
         int id;
@@ -132,7 +133,7 @@ TEST_F(StackTest, emplace) {
         }
     };
 
-    s21::Stack<S> adaptor;
+    s21::Queue<S> adaptor;
     int num = 69;
     string name = "Billy";
     string surname = "Herrington";
