@@ -10,10 +10,34 @@ class VectorTest : public ::testing::Test {
     void SetUp() override {
     }
 
+    struct A {
+        std::string s;
+        A(std::string str) : s(std::move(str)) {
+            std::cout << " constructed\n";
+        }
+        A(const A &o) : s(o.s) {
+            std::cout << " copy constructed\n";
+        }
+        A(A &&o) : s(std::move(o.s)) {
+            std::cout << " move constructed\n";
+        }
+        A &operator=(const A &other) {
+            s = other.s;
+            std::cout << " copy assigned\n";
+            return *this;
+        }
+        A &operator=(A &&other) {
+            s = std::move(other.s);
+            std::cout << " move assigned\n";
+            return *this;
+        }
+    };
+
     s21::Vector<int> vec0_{1, 2, 3, 4, 5, 6, 7, 8, 9};
     s21::Vector<int> vec1_{9, 8, 7, 6, 5, 4, 3, 2, 1};
     s21::Vector<int> vec2_{1};
     s21::Vector<int> vec3_;
+    s21::Vector<A> vec4_;
 };
 
 TEST_F(VectorTest, move_constructor) {
@@ -284,4 +308,24 @@ TEST_F(VectorTest, swap) {
         ASSERT_EQ(want_b[i], vec1_[i]);
     ASSERT_EQ(want_b.size(), vec1_.size());
     ASSERT_EQ(want_b.capacity(), vec1_.capacity());
+}
+
+TEST_F(VectorTest, emplace) {
+}
+
+TEST_F(VectorTest, emplace_back) {
+    std::vector<A> want;
+    want.reserve(10);
+    vec4_.reserve(10);
+
+    A two{"two"};
+    A three{"three"};
+
+    want.emplace_back("one");
+    // vec4_.emplace_back("one");
+    // for (auto i = want.size() - 1; i < want.size(); --i)
+    //     ASSERT_EQ(vec4_[i], want[i]);
+    //
+    // ASSERT_EQ(vec4_.size(), want.size());
+    // ASSERT_EQ(vec4_.capacity(), want.capacity());
 }

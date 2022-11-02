@@ -3,6 +3,7 @@
 
 #include <initializer_list>
 #include <algorithm>
+#include <vector>
 #include "s21_exceptions.hpp"
 
 namespace s21 {
@@ -246,6 +247,14 @@ class Vector {
         ++m_Size;
     }
 
+    constexpr void push_back(value_type &&value) {
+        if (size() + 1 > capacity())
+            ReallocVector(m_Size == 0 ? 1 : m_Size * 2);
+
+        m_Buffer[m_Size] = std::move(value);
+        ++m_Size;
+    }
+
     constexpr void pop_back() {
         if (m_Size == 0)
             throw std::length_error(
@@ -266,6 +275,17 @@ class Vector {
 
         m_Capacity = other.m_Capacity;
         other.m_Capacity = tmp_capacity;
+    }
+
+    template <typename... Args>
+    constexpr iterator emplace(const_iterator pos, Args &&...args) {
+        return insert(pos, T(std::forward<Args>(args)...));
+    }
+
+    template <typename... Args>
+    constexpr iterator emplace_back(Args &&...args) {
+        push_back(T(std::forward<Args>(args)...));
+        return end() - 1;
     }
 
   private:
