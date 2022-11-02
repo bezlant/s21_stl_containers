@@ -89,7 +89,7 @@ class Queue {
     }
 
     template <typename... Args>
-    decltype(auto) emplace(Args &&...args) {
+    decltype(auto) emplace_front(Args &&...args) {
         return q.emplace_back(std::forward<Args>(args)...);
     }
 
