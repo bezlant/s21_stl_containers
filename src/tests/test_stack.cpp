@@ -110,3 +110,35 @@ TEST_F(StackTest, swap) {
     ASSERT_EQ(s0_.size(), 0);
     ASSERT_EQ(s1_.size(), 5);
 }
+
+TEST_F(StackTest, push_refref_move) {
+    s21::Stack<std::vector<int>> sv;
+    std::vector<int> x{1, 2, 3, 4, 5};
+
+    sv.push(std::move(x));
+
+    ASSERT_EQ(x.data(), nullptr);
+}
+
+TEST_F(StackTest, emplace) {
+    using std::string;
+    struct S {
+        int id;
+        string name;
+        string surname;
+
+        S(int i, const std::string &n, const std::string &s)
+            : id{i}, name{n}, surname{s} {
+        }
+    };
+
+    s21::Stack<S> adaptor;
+    int num = 69;
+    string name = "Billy";
+    string surname = "Herrington";
+    const S &s = adaptor.emplace(num, "Billy", "Herrington");
+
+    ASSERT_EQ(s.id, num);
+    ASSERT_EQ(s.name, name);
+    ASSERT_EQ(s.surname, surname);
+}
