@@ -11,7 +11,7 @@ namespace s21 {
 const std::string errOutOfRange =
     "Accessing the vector with []. The index is out of range";
 
-template <typename T>
+template <typename T, class Allocator = std::allocator<T>>
 class Vector {
   public:
     using value_type = T;
@@ -24,21 +24,23 @@ class Vector {
 
     // Member functions
   public:
-    Vector() : m_Size{0}, m_Capacity(0), m_Buffer{nullptr} {
-    }
+    Vector() = default;
 
     explicit Vector(size_type size) {
         m_Size = size;
         m_Capacity = size;
         m_Buffer = nullptr;
         if (size > 0) {
-            m_Buffer = new value_type[m_Size];
+            // m_Buffer = new value_type[m_Size];
+            m_Buffer = alloc.allocate(m_Size);
         }
     }
 
     explicit Vector(std::initializer_list<value_type> const &init)
         : m_Size{init.size()},
-          m_Capacity(init.size()), m_Buffer{new value_type[init.size()]} {
+          m_Capacity(init.size()), m_Buffer{alloc.allocate(m_Size)} {
+        // m_Buffer = allocator.allocate(m_Size);
+
         std::copy(init.begin(), init.end(), m_Buffer);
     }
 
@@ -47,7 +49,8 @@ class Vector {
         m_Capacity = rhs.m_Capacity;
         m_Buffer = nullptr;
         if (m_Size > 0) {
-            m_Buffer = new value_type[m_Size];
+            // m_Buffer = new value_type[m_Size];
+            m_Buffer = alloc.allocate(m_Size);
         }
         std::copy(rhs.begin(), rhs.end(), m_Buffer);
     }
@@ -59,8 +62,9 @@ class Vector {
     }
 
     ~Vector() {
-        delete[] m_Buffer;
-        m_Buffer = nullptr;
+        alloc.deallocate(m_Buffer, m_Capacity);
+        // delete[] m_Buffer;
+        // m_Buffer = nullptr;
     }
 
     constexpr Vector &operator=(Vector &&rhs) {
@@ -77,7 +81,8 @@ class Vector {
         if (this != &rhs) {
             delete[] m_Buffer;
             if (rhs.m_Size > 0) {
-                m_Buffer = new value_type[rhs.m_Size];
+                // m_Buffer = new value_type[rhs.m_Size];
+                m_Buffer = alloc.allocate(m_Size);
                 std::copy(rhs.begin(), rhs.end(), m_Buffer);
             }
             m_Size = rhs.m_Size;
@@ -166,7 +171,7 @@ class Vector {
     }
 
     constexpr size_type size() const noexcept {
-        return m_Size;
+        return std::distance(begin(), end());
     }
 
     constexpr size_type max_size() const noexcept {
@@ -209,7 +214,8 @@ class Vector {
 
         if (new_size > capacity()) {
             m_Capacity = m_Size == 0 ? 1 : m_Size * 2;
-            iterator tmp = new value_type[m_Capacity];
+            // iterator tmp = new value_type[m_Capacity];
+            iterator tmp = alloc.allocate(m_Size);
             std::copy(begin(), pos, tmp);
 
             *(tmp + index) = value;
@@ -289,14 +295,24 @@ class Vector {
     }
 
   private:
-    size_type m_Size;
-    size_type m_Capacity;
-    iterator m_Buffer;
+    Allocator alloc;
+    size_type m_Size = 0;
+    size_type m_Capacity = 0;
+    iterator m_Buffer = nullptr;
 
     void ReallocVector(size_type new_size) {
-        iterator tmp = new value_type[new_size];
-        std::copy(begin(), end(), tmp);
-        delete[] m_Buffer;
+        // iterator tmp = new value_type[new_size];
+        // https://stackoverflow.com/questions/2376989/why-dont-stdvectors-elements-need-a-default-constructor
+        iterator tmp = alloc.allocate(new_size);
+
+        std::size_t i = 0;
+        for (auto first1 = begin(), first2 = tmp; i < m_Size;
+             ++first1, ++first2, ++i) {
+            *first2 = std::move(*first1);
+        }
+
+        // delete[] m_Buffer;
+        alloc.deallocate(m_Buffer, m_Size);
         m_Buffer = tmp;
         m_Capacity = new_size;
     }
