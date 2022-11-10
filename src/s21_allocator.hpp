@@ -1,3 +1,4 @@
+// https://stackoverflow.com/questions/2376989/why-dont-stdvectors-elements-need-a-default-constructor
 #ifndef S21_ALLOCATOR_H_
 #define S21_ALLOCATOR_H_
 
@@ -5,6 +6,11 @@
 #include <stdexcept>
 
 namespace s21 {
+/**
+ * @brief STL-like allocator implementation
+ *
+ * @tparam T type
+ */
 template <typename T>
 class Allocator {
   public:
@@ -20,9 +26,9 @@ class Allocator {
         return static_cast<T *>(::operator new(n * sizeof(T)));
     }
 
-    constexpr void deallocate(T *p, size_type n) noexcept {
-        ((void)n);
+    constexpr void deallocate(T *p, [[maybe_unused]] size_type n) noexcept {
         ::operator delete((void *)p);
+        p = nullptr;
     }
 };
 }  // namespace s21
