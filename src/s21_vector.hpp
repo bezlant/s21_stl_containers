@@ -32,7 +32,6 @@ class Vector {
         m_Capacity = size;
         m_Buffer = nullptr;
         if (size > 0) {
-            // m_Buffer = new value_type[m_Size];
             m_Buffer = alloc.allocate(m_Size);
         }
     }
@@ -40,7 +39,6 @@ class Vector {
     explicit Vector(std::initializer_list<value_type> const &init)
         : m_Size{init.size()},
           m_Capacity(init.size()), m_Buffer{alloc.allocate(m_Size)} {
-        // m_Buffer = allocator.allocate(m_Size);
 
         std::copy(init.begin(), init.end(), m_Buffer);
     }
@@ -50,7 +48,6 @@ class Vector {
         m_Capacity = rhs.m_Capacity;
         m_Buffer = nullptr;
         if (m_Size > 0) {
-            // m_Buffer = new value_type[m_Size];
             m_Buffer = alloc.allocate(m_Size);
         }
         std::copy(rhs.begin(), rhs.end(), m_Buffer);
@@ -64,8 +61,6 @@ class Vector {
 
     ~Vector() {
         alloc.deallocate(m_Buffer, m_Capacity);
-        // delete[] m_Buffer;
-        // m_Buffer = nullptr;
     }
 
     constexpr Vector &operator=(Vector &&rhs) {
@@ -80,10 +75,8 @@ class Vector {
 
     constexpr Vector &operator=(const Vector &rhs) {
         if (this != &rhs) {
-            // delete[] m_Buffer;
             alloc.deallocate(m_Buffer, m_Capacity);
             if (rhs.m_Size > 0) {
-                // m_Buffer = new value_type[rhs.m_Size];
                 m_Buffer = alloc.allocate(m_Size);
                 std::copy(rhs.begin(), rhs.end(), m_Buffer);
             }
@@ -216,14 +209,12 @@ class Vector {
 
         if (new_size > capacity()) {
             m_Capacity = m_Size == 0 ? 1 : m_Size * 2;
-            // iterator tmp = new value_type[m_Capacity];
             iterator tmp = alloc.allocate(m_Size);
             std::copy(begin(), pos, tmp);
 
             *(tmp + index) = value;
 
             std::copy(pos, end(), tmp + index + 1);
-            // delete[] m_Buffer;
             alloc.deallocate(m_Buffer, m_Capacity);
             m_Buffer = tmp;
         } else {
@@ -304,8 +295,6 @@ class Vector {
     iterator m_Buffer = nullptr;
 
     void ReallocVector(size_type new_size) {
-        // iterator tmp = new value_type[new_size];
-        // https://stackoverflow.com/questions/2376989/why-dont-stdvectors-elements-need-a-default-constructor
         iterator tmp = alloc.allocate(new_size);
 
         std::size_t i = 0;
@@ -314,7 +303,6 @@ class Vector {
             *first2 = std::move(*first1);
         }
 
-        // delete[] m_Buffer;
         alloc.deallocate(m_Buffer, m_Size);
         m_Buffer = tmp;
         m_Capacity = new_size;

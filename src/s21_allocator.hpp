@@ -28,7 +28,6 @@ class Allocator {
 
     constexpr void deallocate(T *p, [[maybe_unused]] size_type n) noexcept {
         ::operator delete((void *)p);
-        p = nullptr;
     }
 };
 }  // namespace s21
