@@ -199,7 +199,7 @@ class Vector {
         m_Size = 0;
     }
 
-    constexpr iterator insert(iterator pos, const_reference value) {
+    constexpr iterator insert(const_iterator pos, const_reference value) {
         if (pos - begin() > end() - begin())
             throw std::out_of_range("Unable to insert into a position out of "
                                     "range of begin() to end()");
@@ -210,11 +210,11 @@ class Vector {
         if (new_size > capacity()) {
             m_Capacity = m_Size == 0 ? 1 : m_Size * 2;
             iterator tmp = alloc.allocate(m_Capacity);
-            std::copy(begin(), pos, tmp);
+            std::copy(begin(), const_cast<iterator>(pos), tmp);
 
             *(tmp + index) = value;
 
-            std::copy(pos, end(), tmp + index + 1);
+            std::copy(const_cast<iterator>(pos), end(), tmp + index + 1);
             alloc.deallocate(m_Buffer, m_Capacity);
             m_Buffer = tmp;
         } else {
@@ -226,14 +226,15 @@ class Vector {
         return begin() + index;
     }
 
-    constexpr iterator erase(iterator pos) {
+    constexpr iterator erase(const_iterator pos) {
         if (pos - begin() >= end() - begin())
             throw std::out_of_range(
                 "Unable to erase a position out of range of begin() to end()");
         auto removed_index = pos - begin();
 
-        std::copy(begin(), pos, m_Buffer);
-        std::copy(pos + 1, end(), m_Buffer + removed_index);
+        std::copy(begin(), const_cast<iterator>(pos), m_Buffer);
+        std::copy(const_cast<iterator>(pos) + 1, end(),
+                  m_Buffer + removed_index);
 
         --m_Size;
         return begin() + removed_index;
