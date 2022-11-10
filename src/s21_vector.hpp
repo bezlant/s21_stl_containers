@@ -5,13 +5,14 @@
 #include <algorithm>
 #include <vector>
 #include "s21_exceptions.hpp"
+#include "s21_allocator.hpp"
 
 namespace s21 {
 
 const std::string errOutOfRange =
     "Accessing the vector with []. The index is out of range";
 
-template <typename T, class Allocator = std::allocator<T>>
+template <typename T, class Allocator = s21::Allocator<T>>
 class Vector {
   public:
     using value_type = T;
@@ -79,7 +80,8 @@ class Vector {
 
     constexpr Vector &operator=(const Vector &rhs) {
         if (this != &rhs) {
-            delete[] m_Buffer;
+            // delete[] m_Buffer;
+            alloc.deallocate(m_Buffer, m_Capacity);
             if (rhs.m_Size > 0) {
                 // m_Buffer = new value_type[rhs.m_Size];
                 m_Buffer = alloc.allocate(m_Size);
@@ -221,7 +223,8 @@ class Vector {
             *(tmp + index) = value;
 
             std::copy(pos, end(), tmp + index + 1);
-            delete[] m_Buffer;
+            // delete[] m_Buffer;
+            alloc.deallocate(m_Buffer, m_Capacity);
             m_Buffer = tmp;
         } else {
             std::copy(begin() + index, end(), begin() + index + 1);
