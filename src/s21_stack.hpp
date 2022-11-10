@@ -82,7 +82,7 @@ class Stack {
     }
 
     template <typename... Args>
-    decltype(auto) emplace(Args &&...args) {
+    decltype(auto) emplace_back(Args &&...args) {
         return s.emplace_back(std::forward<Args>(args)...);
     }
 

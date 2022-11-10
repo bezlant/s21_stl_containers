@@ -5,8 +5,9 @@ class ArrayTest : public ::testing::Test {
   protected:
     void SetUp() override {
     }
-
+    const s21::Array<int, 5> arr1_{1, 2, 3, 4, 5};
     s21::Array<int, 5> arr0_{1, 2, 3, 4, 5};
+    s21::Array<std::string, 1> arr2_{"hello"};
 };
 
 TEST_F(ArrayTest, initializer_list_constructor) {
@@ -45,18 +46,32 @@ TEST_F(ArrayTest, move_assignment) {
 }
 
 TEST_F(ArrayTest, back) {
+    ASSERT_EQ(arr1_.back(), 5);
+    ASSERT_EQ(*(arr1_.end() - 1), 5);
     ASSERT_EQ(arr0_.back(), 5);
     ASSERT_EQ(*(arr0_.end() - 1), 5);
 }
 
 TEST_F(ArrayTest, front) {
+    ASSERT_EQ(arr1_.front(), 1);
+    ASSERT_EQ(*arr1_.begin(), 1);
     ASSERT_EQ(arr0_.front(), 1);
     ASSERT_EQ(*arr0_.begin(), 1);
 }
 
 TEST_F(ArrayTest, data) {
     for (std::size_t i = 0; i < arr0_.size(); ++i)
-        ASSERT_EQ(arr0_.data()[i], i + 1);
+        ASSERT_EQ(*(arr0_.data() + i), arr0_[i]);
+}
+
+TEST_F(ArrayTest, iterator) {
+    int i = 1;
+    for (auto it = arr0_.begin(), end = arr0_.end(); it != end; ++it, ++i)
+        ASSERT_EQ(*it, i);
+
+    i = 1;
+    for (auto it = arr1_.begin(), end = arr1_.end(); it != end; ++it, ++i)
+        ASSERT_EQ(*it, i);
 }
 
 TEST_F(ArrayTest, at) {
@@ -78,11 +93,26 @@ TEST_F(ArrayTest, max_size) {
 
 TEST_F(ArrayTest, swap) {
     s21::Array<int, 5> arr1{5, 5, 5, 5, 5};
+    std::array<int, 5> arr2{5, 5, 5, 5, 5};
+    std::array<int, 5> arr3{1, 2, 3, 4, 5};
 
+    arr2.swap(arr3);
     arr0_.swap(arr1);
 
-    for (auto elem : arr0_)
-        ASSERT_EQ(elem, 5);
+    for (s21::Array<int, 5>::size_type i = 0; i < arr0_.size(); ++i)
+        ASSERT_EQ(arr0_[i], arr3[i]);
+}
+
+TEST_F(ArrayTest, swap_string) {
+    s21::Array<std::string, 1> arr1{"world"};
+    std::array<std::string, 1> arr2{"hello"};
+    std::array<std::string, 1> arr3{"world"};
+
+    arr2_.swap(arr1);
+    arr2.swap(arr3);
+
+    for (std::size_t i = 0; i < arr2_.size(); ++i)
+        ASSERT_EQ(arr2_[i], arr2[i]);
 }
 
 TEST_F(ArrayTest, fill) {

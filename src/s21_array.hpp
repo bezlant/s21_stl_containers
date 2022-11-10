@@ -53,11 +53,11 @@ class Array {
     }
 
     constexpr reference operator[](size_type index) {
-        return this->at(index);
+        return at(index);
     }
 
     constexpr const_reference operator[](size_type index) const {
-        return this->at(index);
+        return at(index);
     }
 
     constexpr reference front() {
@@ -120,15 +120,18 @@ class Array {
     }
 
     constexpr size_type max_size() const noexcept {
-        return S;
+        return std::distance(begin(), end());
     }
 
     // Modifiers
   public:
-    void swap(Array &other) noexcept {
-        Array<T, S> tmp = *this;
-        *this = other;
-        other = tmp;
+    constexpr void swap(Array &other) noexcept {
+        for (auto first1 = begin(), last1 = end(), first2 = other.begin();
+             first1 != last1; ++first1, ++first2) {
+            T tmp = std::move(*first1);
+            *first1 = std::move(*first2);
+            *first2 = std::move(tmp);
+        }
     }
 
     void fill(const_reference value) {

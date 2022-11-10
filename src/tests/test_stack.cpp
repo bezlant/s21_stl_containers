@@ -136,7 +136,7 @@ TEST_F(StackTest, emplace) {
     int num = 69;
     string name = "Billy";
     string surname = "Herrington";
-    const S &s = adaptor.emplace(num, "Billy", "Herrington");
+    const S &s = adaptor.emplace_back(num, "Billy", "Herrington");
 
     ASSERT_EQ(s.id, num);
     ASSERT_EQ(s.name, name);

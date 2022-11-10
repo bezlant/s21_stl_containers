@@ -5,6 +5,29 @@
 // implementation discribed here
 // https://en.cppreference.com/w/cpp/container/vector/max_size
 
+struct A {
+    std::string s;
+    explicit A(std::string str) : s(std::move(str)) {
+        std::cout << " constructed\n";
+    }
+    A(const A &o) : s(o.s) {
+        std::cout << " copy constructed\n";
+    }
+    A(A &&o) : s(std::move(o.s)) {
+        std::cout << " move constructed\n";
+    }
+    A &operator=(const A &other) {
+        s = other.s;
+        std::cout << " copy assigned\n";
+        return *this;
+    }
+    A &operator=(A &&other) {
+        s = std::move(other.s);
+        std::cout << " move assigned\n";
+        return *this;
+    }
+};
+
 class VectorTest : public ::testing::Test {
   protected:
     void SetUp() override {
@@ -14,7 +37,14 @@ class VectorTest : public ::testing::Test {
     s21::Vector<int> vec1_{9, 8, 7, 6, 5, 4, 3, 2, 1};
     s21::Vector<int> vec2_{1};
     s21::Vector<int> vec3_;
+    s21::Vector<A> vec4_;
+    s21::Vector<std::string> vec5_;
 };
+
+// Gtest needs this function overload so had to put struct outside of SetUp
+bool operator==(const A &lhs, const A &rhs) {
+    return rhs.s == lhs.s;
+}
 
 TEST_F(VectorTest, move_constructor) {
     s21::Vector<int> v{std::move(vec0_)};
@@ -32,8 +62,12 @@ TEST_F(VectorTest, move_assignment) {
 TEST_F(VectorTest, copy_assignment) {
     s21::Vector<int> v;
     v = vec0_;
+
+    ASSERT_EQ(vec0_[0], v[0]);
+
     for (std::size_t i = 0; i < v.size(); ++i)
-        ASSERT_EQ(v[i], i + 1);
+        ASSERT_EQ(v[i], vec0_[i]);
+
     ASSERT_EQ(v.size(), vec0_.size());
     ASSERT_EQ(v.capacity(), vec0_.capacity());
 }
@@ -84,6 +118,17 @@ TEST_F(VectorTest, reserve) {
     ASSERT_EQ(vec0_.size(), s.size());
     ASSERT_EQ(vec0_.capacity(), s.capacity());
 }
+
+// Sanitizer doesn't like this test (error in stl, crashes the LINKER LMAO)
+// TEST_F(VectorTest, reserve_string) {
+//     std::vector<std::string> s{"Hello"};
+//     s21::Vector<std::string> ss{"Hello"};
+//     s.reserve(20);
+//     ss.reserve(20);
+//     ASSERT_EQ(ss.size(), s.size());
+//     ASSERT_EQ(ss.capacity(), s.capacity());
+//     ASSERT_EQ(s[0], ss[0]);
+// }
 
 TEST_F(VectorTest, shrink) {
     std::vector s{1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -284,4 +329,45 @@ TEST_F(VectorTest, swap) {
         ASSERT_EQ(want_b[i], vec1_[i]);
     ASSERT_EQ(want_b.size(), vec1_.size());
     ASSERT_EQ(want_b.capacity(), vec1_.capacity());
+}
+
+TEST_F(VectorTest, emplace) {
+    using std::string;
+    std::vector<string> want;
+    want.reserve(10);
+    vec5_.reserve(10);
+
+    string two{"two"};
+    string three{"three"};
+
+    want.emplace(want.begin(), "one");
+    vec5_.emplace(vec5_.begin(), "one");
+    want.emplace(want.begin(), "one");
+    vec5_.emplace(vec5_.begin(), "one");
+    want.emplace(want.begin(), "one");
+    vec5_.emplace(vec5_.begin(), "one");
+    want.emplace(want.begin(), "one");
+    vec5_.emplace(vec5_.begin(), "one");
+    for (auto i = want.size() - 1; i < want.size(); --i)
+        ASSERT_EQ(vec5_[i], want[i]);
+
+    ASSERT_EQ(vec5_.size(), want.size());
+    ASSERT_EQ(vec5_.capacity(), want.capacity());
+}
+
+TEST_F(VectorTest, emplace_back) {
+    std::vector<A> want;
+    want.reserve(10);
+    vec4_.reserve(10);
+
+    A two{"two"};
+    A three{"three"};
+
+    want.emplace_back("one");
+    vec4_.emplace_back("one");
+    for (auto i = want.size() - 1; i < want.size(); --i)
+        ASSERT_EQ(vec4_[i], want[i]);
+
+    ASSERT_EQ(vec4_.size(), want.size());
+    ASSERT_EQ(vec4_.capacity(), want.capacity());
 }
