@@ -209,7 +209,7 @@ class Vector {
 
         if (new_size > capacity()) {
             m_Capacity = m_Size == 0 ? 1 : m_Size * 2;
-            iterator tmp = alloc.allocate(m_Size);
+            iterator tmp = alloc.allocate(m_Capacity);
             std::copy(begin(), pos, tmp);
 
             *(tmp + index) = value;
