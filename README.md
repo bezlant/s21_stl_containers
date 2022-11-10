@@ -607,10 +607,10 @@ This table contains the public methods for viewing the container:
 - [x] Integrate CMake
 - [x] Integrate Gtest
 - [x] Array class
-- [ ] Vector class
+- [x] Vector class
 - [ ] List class
-- [ ] Queue class
-- [ ] Stack class
+- [x] Queue class
+- [x] Stack class
 - [ ] Map class
 - [ ] Set class
 - [ ] Multiset class
