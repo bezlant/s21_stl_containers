@@ -77,7 +77,7 @@ class Vector {
         if (this != &rhs) {
             alloc.deallocate(m_Buffer, m_Capacity);
             if (rhs.m_Size > 0) {
-                m_Buffer = alloc.allocate(m_Size);
+                m_Buffer = alloc.allocate(rhs.m_Size);
                 std::copy(rhs.begin(), rhs.end(), m_Buffer);
             }
             m_Size = rhs.m_Size;
