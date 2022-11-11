@@ -33,3 +33,5 @@
 
 src/build
 src/.cache/clangd/index
+src/.DS_Store
+.DS_Store
