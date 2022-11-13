@@ -5,6 +5,7 @@ project(STL VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
+set(CMAKE_BUILD_TYPE Debug)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options(-fsanitize=address)
@@ -17,7 +18,7 @@ enable_testing()
 
 file(GLOB SOURCES ./tests/*.cpp)
 add_executable(tests ${SOURCES})
-target_compile_options(tests PRIVATE -Wall -Werror -Wextra -Wpedantic)
+target_compile_options(tests PRIVATE -Wall -Werror -Wextra -Wpedantic -std=c++20)
 
 target_link_libraries(tests GTest::gtest_main)
 

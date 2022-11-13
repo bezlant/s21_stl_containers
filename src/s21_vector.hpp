@@ -1,19 +1,20 @@
 #ifndef S21_VECTOR_H_
 #define S21_VECTOR_H_
 
-#include <initializer_list>
-#include <algorithm>
-#include <vector>
-#include "s21_exceptions.hpp"
 #include "s21_allocator.hpp"
+#include "s21_exceptions.hpp"
+#include <algorithm>
+#include <initializer_list>
+#include <limits>
+#include <utility>
+#include <vector>
 
 namespace s21 {
 
 const std::string errOutOfRange =
     "Accessing the vector with []. The index is out of range";
 
-template <typename T, class Allocator = s21::Allocator<T>>
-class Vector {
+template <typename T, class Allocator = std::allocator<T>> class Vector {
   public:
     using value_type = T;
     using reference = T &;
@@ -25,7 +26,8 @@ class Vector {
 
     // Member functions
   public:
-    Vector() = default;
+    Vector() {
+    }
 
     explicit Vector(size_type size) {
         m_Size = size;
@@ -208,6 +210,7 @@ class Vector {
         size_type index = pos - begin();
 
         if (new_size > capacity()) {
+            size_type old_capacity = m_Capacity;
             m_Capacity = m_Size == 0 ? 1 : m_Size * 2;
             iterator tmp = alloc.allocate(m_Capacity);
             std::copy(begin(), const_cast<iterator>(pos), tmp);
@@ -215,7 +218,7 @@ class Vector {
             *(tmp + index) = value;
 
             std::copy(const_cast<iterator>(pos), end(), tmp + index + 1);
-            alloc.deallocate(m_Buffer, m_Capacity);
+            alloc.deallocate(m_Buffer, old_capacity);
             m_Buffer = tmp;
         } else {
             std::copy(begin() + index, end(), begin() + index + 1);
@@ -304,7 +307,7 @@ class Vector {
             *first2 = std::move(*first1);
         }
 
-        alloc.deallocate(m_Buffer, m_Size);
+        alloc.deallocate(m_Buffer, m_Capacity);
         m_Buffer = tmp;
         m_Capacity = new_size;
     }
