@@ -232,7 +232,7 @@ class Vector {
     }
 
     constexpr void push_back(const_reference value) {
-        if (m_Size + 1 > m_Capacity)
+        if (m_Size == m_Capacity)
             ReallocVector(m_Size == 0 ? 1 : m_Size * 2);
 
         m_Buffer[m_Size] = value;
@@ -240,7 +240,7 @@ class Vector {
     }
 
     constexpr void push_back(value_type &&value) {
-        if (m_Size + 1 > m_Capacity) {
+        if (m_Size == m_Capacity) {
             ReallocVector(m_Size == 0 ? 1 : m_Size * 2);
         }
 
