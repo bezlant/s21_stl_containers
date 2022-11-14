@@ -368,7 +368,6 @@ TEST_F(VectorTest, swap) {
     ASSERT_EQ(want_b.capacity(), vec1_.capacity());
 }
 
-// NOTE: This gives memory erorrs when used without sanitizer
 TEST_F(VectorTest, emplace_back) {
     std::vector<A> want;
 
@@ -395,9 +394,6 @@ TEST_F(VectorTest, emplace_back) {
 TEST_F(VectorTest, emplace) {
     using std::string;
     std::vector<string> want;
-
-    // string two{"two"};
-    // string three{"three"};
 
     want.emplace(want.begin(), "one");
     vec5_.emplace(vec5_.begin(), "one");
