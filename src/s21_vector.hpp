@@ -244,7 +244,7 @@ template <typename T, class Allocator = std::allocator<T>> class Vector {
     }
 
     constexpr void push_back(const_reference value) {
-        if (size() + 1 > capacity())
+        if (m_Size + 1 > m_Capacity)
             ReallocVector(m_Size == 0 ? 1 : m_Size * 2);
 
         m_Buffer[m_Size] = value;
@@ -252,8 +252,9 @@ template <typename T, class Allocator = std::allocator<T>> class Vector {
     }
 
     constexpr void push_back(value_type &&value) {
-        if (size() + 1 > capacity())
+        if (m_Size + 1 > m_Capacity) {
             ReallocVector(m_Size == 0 ? 1 : m_Size * 2);
+        }
 
         m_Buffer[m_Size] = std::move(value);
         ++m_Size;
@@ -298,8 +299,8 @@ template <typename T, class Allocator = std::allocator<T>> class Vector {
     size_type m_Capacity = 0;
     iterator m_Buffer = nullptr;
 
-    void ReallocVector(size_type new_size) {
-        iterator tmp = alloc.allocate(new_size);
+    void ReallocVector(size_type new_capacity) {
+        iterator tmp = alloc.allocate(new_capacity);
 
         std::size_t i = 0;
         for (auto first1 = begin(), first2 = tmp; i < m_Size;
@@ -309,7 +310,7 @@ template <typename T, class Allocator = std::allocator<T>> class Vector {
 
         alloc.deallocate(m_Buffer, m_Capacity);
         m_Buffer = tmp;
-        m_Capacity = new_size;
+        m_Capacity = new_capacity;
     }
 };
 
