@@ -14,7 +14,8 @@ namespace s21 {
 const std::string errOutOfRange =
     "Accessing the vector with []. The index is out of range";
 
-template <typename T, class Allocator = std::allocator<T>> class Vector {
+template <typename T, class Allocator = std::allocator<T>>
+class Vector {
   public:
     using value_type = T;
     using reference = T &;
@@ -202,45 +203,32 @@ template <typename T, class Allocator = std::allocator<T>> class Vector {
     }
 
     constexpr iterator insert(const_iterator pos, const_reference value) {
-        if (pos - begin() > end() - begin())
+        size_type index = pos - begin();
+        if (index > m_Size)
             throw std::out_of_range("Unable to insert into a position out of "
                                     "range of begin() to end()");
 
-        size_type new_size = size() + 1;
-        size_type index = pos - begin();
+        if (m_Size == m_Capacity)
+            ReallocVector(m_Size ? m_Size * 2 : 1);
 
-        if (new_size > capacity()) {
-            size_type old_capacity = m_Capacity;
-            m_Capacity = m_Size == 0 ? 1 : m_Size * 2;
-            iterator tmp = alloc.allocate(m_Capacity);
-            std::copy(begin(), const_cast<iterator>(pos), tmp);
+        std::copy(begin() + index, end(), begin() + index + 1);
+        *(m_Buffer + index) = value;
 
-            *(tmp + index) = value;
-
-            std::copy(const_cast<iterator>(pos), end(), tmp + index + 1);
-            alloc.deallocate(m_Buffer, old_capacity);
-            m_Buffer = tmp;
-        } else {
-            std::copy(begin() + index, end(), begin() + index + 1);
-            *(begin() + index) = value;
-        }
-
-        m_Size = new_size;
+        ++m_Size;
         return begin() + index;
     }
 
     constexpr iterator erase(const_iterator pos) {
-        if (pos - begin() >= end() - begin())
+        size_type index = pos - begin();
+        if (index >= m_Size)
             throw std::out_of_range(
                 "Unable to erase a position out of range of begin() to end()");
-        auto removed_index = pos - begin();
 
         std::copy(begin(), const_cast<iterator>(pos), m_Buffer);
-        std::copy(const_cast<iterator>(pos) + 1, end(),
-                  m_Buffer + removed_index);
+        std::copy(const_cast<iterator>(pos) + 1, end(), m_Buffer + index);
 
         --m_Size;
-        return begin() + removed_index;
+        return begin() + index;
     }
 
     constexpr void push_back(const_reference value) {
