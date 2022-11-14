@@ -14,7 +14,7 @@ namespace s21 {
 const std::string errOutOfRange =
     "Accessing the vector with []. The index is out of range";
 
-template <typename T, class Allocator = std::allocator<T>>
+template <typename T, class Allocator = s21::Allocator<T>>
 class Vector {
   public:
     using value_type = T;
@@ -35,13 +35,13 @@ class Vector {
         m_Capacity = size;
         m_Buffer = nullptr;
         if (size > 0) {
-            m_Buffer = alloc.allocate(m_Size);
+            m_Buffer = alloc.allocate(m_Capacity);
         }
     }
 
     explicit Vector(std::initializer_list<value_type> const &init)
         : m_Size{init.size()},
-          m_Capacity(init.size()), m_Buffer{alloc.allocate(m_Size)} {
+          m_Capacity(init.size()), m_Buffer{alloc.allocate(m_Capacity)} {
 
         std::copy(init.begin(), init.end(), m_Buffer);
     }
@@ -51,7 +51,7 @@ class Vector {
         m_Capacity = rhs.m_Capacity;
         m_Buffer = nullptr;
         if (m_Size > 0) {
-            m_Buffer = alloc.allocate(m_Size);
+            m_Buffer = alloc.allocate(m_Capacity);
         }
         std::copy(rhs.begin(), rhs.end(), m_Buffer);
     }
@@ -80,7 +80,7 @@ class Vector {
         if (this != &rhs) {
             alloc.deallocate(m_Buffer, m_Capacity);
             if (rhs.m_Size > 0) {
-                m_Buffer = alloc.allocate(rhs.m_Size);
+                m_Buffer = alloc.allocate(rhs.m_Capacity);
                 std::copy(rhs.begin(), rhs.end(), m_Buffer);
             }
             m_Size = rhs.m_Size;
@@ -290,11 +290,8 @@ class Vector {
     void ReallocVector(size_type new_capacity) {
         iterator tmp = alloc.allocate(new_capacity);
 
-        std::size_t i = 0;
-        for (auto first1 = begin(), first2 = tmp; i < m_Size;
-             ++first1, ++first2, ++i) {
-            *first2 = std::move(*first1);
-        }
+        for (size_type i = 0; i < m_Size; ++i)
+            tmp[i] = std::move(m_Buffer[i]);
 
         alloc.deallocate(m_Buffer, m_Capacity);
         m_Buffer = tmp;
