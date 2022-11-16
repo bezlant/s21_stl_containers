@@ -3,8 +3,8 @@
 #define S21_ALLOCATOR_H_
 
 #include <cstddef>
+#include <memory>
 #include <stdexcept>
-
 namespace s21 {
 /**
  * @brief STL-like allocator implementation
@@ -14,15 +14,17 @@ namespace s21 {
 template <typename T>
 class Allocator {
   public:
-    typedef size_t size_type;
+    typedef std::size_t size_type;
+    typedef T value_type;
 
     Allocator() noexcept {
     }
 
     [[nodiscard]] constexpr T *allocate(size_type n) {
-        if (n > size_t(~0) / sizeof(T))
+        if (n > std::allocator_traits<Allocator>::max_size(*this))
             throw std::length_error("allocator<T>::allocate(size_t n) 'n' "
                                     "exceeds maximum supuported size");
+
         return static_cast<T *>(::operator new(n * sizeof(T)));
     }
 

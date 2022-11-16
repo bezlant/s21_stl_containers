@@ -1,11 +1,13 @@
 #ifndef S21_VECTOR_H_
 #define S21_VECTOR_H_
 
-#include <initializer_list>
-#include <algorithm>
-#include <vector>
-#include "s21_exceptions.hpp"
 #include "s21_allocator.hpp"
+#include "s21_exceptions.hpp"
+#include <algorithm>
+#include <initializer_list>
+#include <limits>
+#include <utility>
+#include <vector>
 
 namespace s21 {
 
@@ -25,20 +27,21 @@ class Vector {
 
     // Member functions
   public:
-    Vector() = default;
+    Vector() {
+    }
 
     explicit Vector(size_type size) {
         m_Size = size;
         m_Capacity = size;
         m_Buffer = nullptr;
         if (size > 0) {
-            m_Buffer = alloc.allocate(m_Size);
+            m_Buffer = alloc.allocate(m_Capacity);
         }
     }
 
     explicit Vector(std::initializer_list<value_type> const &init)
         : m_Size{init.size()},
-          m_Capacity(init.size()), m_Buffer{alloc.allocate(m_Size)} {
+          m_Capacity(init.size()), m_Buffer{alloc.allocate(m_Capacity)} {
 
         std::copy(init.begin(), init.end(), m_Buffer);
     }
@@ -48,7 +51,7 @@ class Vector {
         m_Capacity = rhs.m_Capacity;
         m_Buffer = nullptr;
         if (m_Size > 0) {
-            m_Buffer = alloc.allocate(m_Size);
+            m_Buffer = alloc.allocate(m_Capacity);
         }
         std::copy(rhs.begin(), rhs.end(), m_Buffer);
     }
@@ -77,7 +80,7 @@ class Vector {
         if (this != &rhs) {
             alloc.deallocate(m_Buffer, m_Capacity);
             if (rhs.m_Size > 0) {
-                m_Buffer = alloc.allocate(rhs.m_Size);
+                m_Buffer = alloc.allocate(rhs.m_Capacity);
                 std::copy(rhs.begin(), rhs.end(), m_Buffer);
             }
             m_Size = rhs.m_Size;
@@ -199,58 +202,62 @@ class Vector {
         m_Size = 0;
     }
 
-    constexpr iterator insert(const_iterator pos, const_reference value) {
-        if (pos - begin() > end() - begin())
+    constexpr iterator insert(const_iterator pos, value_type &&value) {
+        size_type index = pos - begin();
+        if (index > m_Size)
             throw std::out_of_range("Unable to insert into a position out of "
                                     "range of begin() to end()");
 
-        size_type new_size = size() + 1;
+        if (m_Size == m_Capacity)
+            ReallocVector(m_Size ? m_Size * 2 : 1);
+
+        std::copy(begin() + index, end(), begin() + index + 1);
+        *(m_Buffer + index) = value;
+
+        ++m_Size;
+        return begin() + index;
+    }
+
+    constexpr iterator insert(const_iterator pos, const_reference value) {
         size_type index = pos - begin();
+        if (index > m_Size)
+            throw std::out_of_range("Unable to insert into a position out of "
+                                    "range of begin() to end()");
 
-        if (new_size > capacity()) {
-            m_Capacity = m_Size == 0 ? 1 : m_Size * 2;
-            iterator tmp = alloc.allocate(m_Capacity);
-            std::copy(begin(), const_cast<iterator>(pos), tmp);
+        if (m_Size == m_Capacity)
+            ReallocVector(m_Size ? m_Size * 2 : 1);
 
-            *(tmp + index) = value;
+        std::copy(begin() + index, end(), begin() + index + 1);
+        *(m_Buffer + index) = value;
 
-            std::copy(const_cast<iterator>(pos), end(), tmp + index + 1);
-            alloc.deallocate(m_Buffer, m_Capacity);
-            m_Buffer = tmp;
-        } else {
-            std::copy(begin() + index, end(), begin() + index + 1);
-            *(begin() + index) = value;
-        }
-
-        m_Size = new_size;
+        ++m_Size;
         return begin() + index;
     }
 
     constexpr iterator erase(const_iterator pos) {
-        if (pos - begin() >= end() - begin())
+        size_type index = pos - begin();
+        if (index >= m_Size)
             throw std::out_of_range(
                 "Unable to erase a position out of range of begin() to end()");
-        auto removed_index = pos - begin();
 
         std::copy(begin(), const_cast<iterator>(pos), m_Buffer);
-        std::copy(const_cast<iterator>(pos) + 1, end(),
-                  m_Buffer + removed_index);
+        std::copy(const_cast<iterator>(pos) + 1, end(), m_Buffer + index);
 
         --m_Size;
-        return begin() + removed_index;
+        return begin() + index;
     }
 
     constexpr void push_back(const_reference value) {
-        if (size() + 1 > capacity())
-            ReallocVector(m_Size == 0 ? 1 : m_Size * 2);
+        if (m_Size == m_Capacity)
+            reserve(m_Size ? m_Size * 2 : 1);
 
         m_Buffer[m_Size] = value;
         ++m_Size;
     }
 
     constexpr void push_back(value_type &&value) {
-        if (size() + 1 > capacity())
-            ReallocVector(m_Size == 0 ? 1 : m_Size * 2);
+        if (m_Size == m_Capacity)
+            reserve(m_Size ? m_Size * 2 : 1);
 
         m_Buffer[m_Size] = std::move(value);
         ++m_Size;
@@ -295,18 +302,14 @@ class Vector {
     size_type m_Capacity = 0;
     iterator m_Buffer = nullptr;
 
-    void ReallocVector(size_type new_size) {
-        iterator tmp = alloc.allocate(new_size);
+    void ReallocVector(size_type new_capacity) {
+        iterator tmp = alloc.allocate(new_capacity);
+        for (size_type i = 0; i < m_Size; ++i)
+            tmp[i] = std::move(m_Buffer[i]);
 
-        std::size_t i = 0;
-        for (auto first1 = begin(), first2 = tmp; i < m_Size;
-             ++first1, ++first2, ++i) {
-            *first2 = std::move(*first1);
-        }
-
-        alloc.deallocate(m_Buffer, m_Size);
+        alloc.deallocate(m_Buffer, m_Capacity);
         m_Buffer = tmp;
-        m_Capacity = new_size;
+        m_Capacity = new_capacity;
     }
 };
 

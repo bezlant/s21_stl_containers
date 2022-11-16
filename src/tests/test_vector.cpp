@@ -6,24 +6,25 @@
 // https://en.cppreference.com/w/cpp/container/vector/max_size
 
 struct A {
+  public:
     std::string s;
     explicit A(std::string str) : s(std::move(str)) {
-        std::cout << " constructed\n";
+        // std::cout << " constructed\n";
     }
     A(const A &o) : s(o.s) {
-        std::cout << " copy constructed\n";
+        // std::cout << " copy constructed\n";
     }
     A(A &&o) : s(std::move(o.s)) {
-        std::cout << " move constructed\n";
+        // std::cout << " move constructed\n";
     }
     A &operator=(const A &other) {
         s = other.s;
-        std::cout << " copy assigned\n";
+        // std::cout << " copy assigned\n";
         return *this;
     }
     A &operator=(A &&other) {
         s = std::move(other.s);
-        std::cout << " move assigned\n";
+        // std::cout << " move assigned\n";
         return *this;
     }
 };
@@ -160,7 +161,17 @@ TEST_F(VectorTest, clear) {
 
 TEST_F(VectorTest, insert_realloc) {
     vec0_.insert(vec0_.begin() + 3, 5);
+    vec0_.insert(vec0_.begin() + 3, 5);
+    vec0_.insert(vec0_.begin() + 3, 5);
+    vec0_.insert(vec0_.begin() + 3, 5);
+    vec0_.insert(vec0_.begin() + 3, 5);
+    vec0_.insert(vec0_.begin() + 3, 5);
     std::vector<int> want{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    want.insert(want.begin() + 3, 5);
+    want.insert(want.begin() + 3, 5);
+    want.insert(want.begin() + 3, 5);
+    want.insert(want.begin() + 3, 5);
+    want.insert(want.begin() + 3, 5);
     want.insert(want.begin() + 3, 5);
 
     for (auto i = want.size() - 1; i < want.size(); --i)
@@ -171,10 +182,18 @@ TEST_F(VectorTest, insert_realloc) {
 }
 
 TEST_F(VectorTest, insert_realloc1) {
+    vec2_.insert(vec2_.begin(), 5);
+    vec2_.insert(vec2_.begin(), 5);
+    vec2_.insert(vec2_.begin(), 5);
+    vec2_.insert(vec2_.begin(), 5);
     auto itGot = vec2_.insert(vec2_.begin(), 5);
-    std::vector<int> want{1};
-    auto itWant = want.insert(want.begin(), 5);
 
+    std::vector<int> want{1};
+    want.insert(want.begin(), 5);
+    want.insert(want.begin(), 5);
+    want.insert(want.begin(), 5);
+    want.insert(want.begin(), 5);
+    auto itWant = want.insert(want.begin(), 5);
     ASSERT_EQ(*itGot, *itWant);
 
     for (auto i = want.size() - 1; i < want.size(); --i)
@@ -272,6 +291,24 @@ TEST_F(VectorTest, erase_exception) {
     ASSERT_ANY_THROW(vec0_.erase(vec0_.begin() + 1));
 }
 
+TEST_F(VectorTest, push_back_A) {
+    vec4_.push_back(A("one"));
+    vec4_.push_back(A("two"));
+    vec4_.push_back(A("three"));
+    vec4_.push_back(A("four"));
+    std::vector<A> want;
+    want.push_back(A("one"));
+    want.push_back(A("two"));
+    want.push_back(A("three"));
+    want.push_back(A("four"));
+
+    for (auto i = want.size() - 1; i < want.size(); --i)
+        ASSERT_EQ(vec4_[i], want[i]);
+
+    ASSERT_EQ(vec4_.size(), want.size());
+    ASSERT_EQ(vec4_.capacity(), want.capacity());
+}
+
 TEST_F(VectorTest, push_back) {
     vec0_.push_back(6);
     std::vector<int> want{1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -331,43 +368,45 @@ TEST_F(VectorTest, swap) {
     ASSERT_EQ(want_b.capacity(), vec1_.capacity());
 }
 
-TEST_F(VectorTest, emplace) {
-    using std::string;
-    std::vector<string> want;
-    want.reserve(10);
-    vec5_.reserve(10);
-
-    string two{"two"};
-    string three{"three"};
-
-    want.emplace(want.begin(), "one");
-    vec5_.emplace(vec5_.begin(), "one");
-    want.emplace(want.begin(), "one");
-    vec5_.emplace(vec5_.begin(), "one");
-    want.emplace(want.begin(), "one");
-    vec5_.emplace(vec5_.begin(), "one");
-    want.emplace(want.begin(), "one");
-    vec5_.emplace(vec5_.begin(), "one");
-    for (auto i = want.size() - 1; i < want.size(); --i)
-        ASSERT_EQ(vec5_[i], want[i]);
-
-    ASSERT_EQ(vec5_.size(), want.size());
-    ASSERT_EQ(vec5_.capacity(), want.capacity());
-}
-
 TEST_F(VectorTest, emplace_back) {
     std::vector<A> want;
-    want.reserve(10);
-    vec4_.reserve(10);
 
     A two{"two"};
     A three{"three"};
 
+    want.emplace_back(three);
+    want.emplace_back(two);
     want.emplace_back("one");
+    want.emplace_back("one");
+    vec4_.emplace_back(three);
+    vec4_.emplace_back(two);
     vec4_.emplace_back("one");
-    for (auto i = want.size() - 1; i < want.size(); --i)
+    vec4_.emplace_back("one");
+
+    for (std::size_t i = 0; i < want.size(); ++i) {
         ASSERT_EQ(vec4_[i], want[i]);
+    }
 
     ASSERT_EQ(vec4_.size(), want.size());
     ASSERT_EQ(vec4_.capacity(), want.capacity());
+}
+
+TEST_F(VectorTest, emplace) {
+    using std::string;
+    std::vector<string> want;
+
+    want.emplace(want.begin(), "one");
+    vec5_.emplace(vec5_.begin(), "one");
+    want.emplace(want.begin(), "one");
+    vec5_.emplace(vec5_.begin(), "one");
+    want.emplace(want.begin(), "one");
+    vec5_.emplace(vec5_.begin(), "one");
+    want.emplace(want.begin(), "one");
+    vec5_.emplace(vec5_.begin(), "one");
+
+    for (std::size_t i = 0; i < want.size(); ++i)
+        ASSERT_EQ(vec5_[i], want[i]);
+
+    ASSERT_EQ(vec5_.size(), want.size());
+    ASSERT_EQ(vec5_.capacity(), want.capacity());
 }
