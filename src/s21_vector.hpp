@@ -14,7 +14,7 @@ namespace s21 {
 const std::string errOutOfRange =
     "Accessing the vector with []. The index is out of range";
 
-template <typename T, class Allocator = s21::Allocator<T>>
+template <typename T, class Allocator = std::allocator<T>>
 class Vector {
   public:
     using value_type = T;
@@ -27,7 +27,7 @@ class Vector {
 
     // Member functions
   public:
-    Vector() {
+    Vector() : m_Size{0}, m_Capacity{0}, m_Buffer{nullptr} {
     }
 
     explicit Vector(size_type size) {
@@ -68,6 +68,7 @@ class Vector {
 
     constexpr Vector &operator=(Vector &&rhs) {
         if (this != &rhs) {
+            std::cout << "Move assigned\n";
             m_Size = std::exchange(rhs.m_Size, 0);
             m_Capacity = std::exchange(rhs.m_Capacity, 0);
             m_Buffer = std::exchange(rhs.m_Buffer, nullptr);
@@ -78,10 +79,15 @@ class Vector {
 
     constexpr Vector &operator=(const Vector &rhs) {
         if (this != &rhs) {
+            std::cout << "Capacity = " << m_Capacity << "\n";
             alloc.deallocate(m_Buffer, m_Capacity);
+
             if (rhs.m_Size > 0) {
                 m_Buffer = alloc.allocate(rhs.m_Capacity);
-                std::copy(rhs.begin(), rhs.end(), m_Buffer);
+                // NOTE: think if &operator= calls itself and explodes
+                // for (size_type i = 0; i < rhs.m_Size; ++i)
+                //     m_Buffer[i] = 0;
+                // std::copy(rhs.begin(), rhs.end(), m_Buffer);
             }
             m_Size = rhs.m_Size;
             m_Capacity = rhs.m_Capacity;
@@ -256,10 +262,15 @@ class Vector {
     }
 
     constexpr void push_back(value_type &&value) {
+        std::cout << "before reserve" << m_Capacity << "\n";
         if (m_Size == m_Capacity)
             reserve(m_Size ? m_Size * 2 : 1);
 
+        std::cout << "after reserve" << m_Capacity << "\n";
+
+        // std::cout << "SEGFAULT\n";
         m_Buffer[m_Size] = std::move(value);
+        // std::cout << "SEGFAULT\n";
         ++m_Size;
     }
 

@@ -5,26 +5,50 @@
 // implementation discribed here
 // https://en.cppreference.com/w/cpp/container/vector/max_size
 
+struct B {
+  public:
+    int s;
+    explicit B(int str) : s(std::move(str)) {
+        std::cout << " constructed\n";
+    }
+    B(const B &o) : s(o.s) {
+        std::cout << " copy constructed\n";
+    }
+    B(B &&o) : s(std::move(o.s)) {
+        std::cout << " move constructed\n";
+    }
+    B &operator=(const B &other) {
+        s = other.s;
+        std::cout << " copy assigned\n";
+        return *this;
+    }
+    B &operator=(B &&other) {
+        s = std::move(other.s);
+        std::cout << " move assigned\n";
+        return *this;
+    }
+};
+
 struct A {
   public:
     std::string s;
     explicit A(std::string str) : s(std::move(str)) {
-        // std::cout << " constructed\n";
+        std::cout << " constructed\n";
     }
     A(const A &o) : s(o.s) {
-        // std::cout << " copy constructed\n";
+        std::cout << " copy constructed\n";
     }
     A(A &&o) : s(std::move(o.s)) {
-        // std::cout << " move constructed\n";
+        std::cout << " move constructed\n";
     }
     A &operator=(const A &other) {
         s = other.s;
-        // std::cout << " copy assigned\n";
+        std::cout << " copy assigned\n";
         return *this;
     }
     A &operator=(A &&other) {
         s = std::move(other.s);
-        // std::cout << " move assigned\n";
+        std::cout << " move assigned\n";
         return *this;
     }
 };
@@ -44,6 +68,11 @@ class VectorTest : public ::testing::Test {
 
 // Gtest needs this function overload so had to put struct outside of SetUp
 bool operator==(const A &lhs, const A &rhs) {
+    return rhs.s == lhs.s;
+}
+
+// Gtest needs this function overload so had to put struct outside of SetUp
+bool operator==(const B &lhs, const B &rhs) {
     return rhs.s == lhs.s;
 }
 
@@ -289,6 +318,50 @@ TEST_F(VectorTest, erase_edge1) {
 TEST_F(VectorTest, erase_exception) {
     s21::Vector<int> vec0_{1};
     ASSERT_ANY_THROW(vec0_.erase(vec0_.begin() + 1));
+}
+
+TEST_F(VectorTest, push_back_vector) {
+    s21::Vector<s21::Vector<int>> my;
+    std::vector<s21::Vector<int>> want;
+
+    my.push_back(s21::Vector<int>{1, 2, 3});
+    want.push_back(s21::Vector<int>{1, 2, 3});
+    // for (auto i = want.size() - 1; i < want.size(); --i)
+    //     ASSERT_EQ(my[i], want[i]);
+    //
+    // ASSERT_EQ(my.size(), want.size());
+    // ASSERT_EQ(my.capacity(), want.capacity());
+}
+
+TEST_F(VectorTest, push_back_B) {
+    s21::Vector<B> vec6_;
+    vec6_.push_back(B(3));
+    vec6_.push_back(B(3));
+    vec6_.push_back(B(3));
+    vec6_.push_back(B(3));
+    vec6_.push_back(B(3));
+    vec6_.push_back(B(3));
+    vec6_.push_back(B(3));
+    vec6_.push_back(B(3));
+    vec6_.push_back(B(3));
+    vec6_.push_back(B(3));
+    std::vector<B> want;
+    want.push_back(B(3));
+    want.push_back(B(3));
+    want.push_back(B(3));
+    want.push_back(B(3));
+    want.push_back(B(3));
+    want.push_back(B(3));
+    want.push_back(B(3));
+    want.push_back(B(3));
+    want.push_back(B(3));
+    want.push_back(B(3));
+
+    for (auto i = want.size() - 1; i < want.size(); --i)
+        ASSERT_EQ(vec6_[i], want[i]);
+
+    ASSERT_EQ(vec6_.size(), want.size());
+    ASSERT_EQ(vec6_.capacity(), want.capacity());
 }
 
 TEST_F(VectorTest, push_back_A) {
