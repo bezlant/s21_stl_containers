@@ -233,16 +233,15 @@ class Vector {
 
     constexpr void push_back(const_reference value) {
         if (m_Size == m_Capacity)
-            ReallocVector(m_Size == 0 ? 1 : m_Size * 2);
+            ReallocVector(m_Size ? m_Size * 2 : 1);
 
         m_Buffer[m_Size] = value;
         ++m_Size;
     }
 
     constexpr void push_back(value_type &&value) {
-        if (m_Size == m_Capacity) {
-            ReallocVector(m_Size == 0 ? 1 : m_Size * 2);
-        }
+        if (m_Size == m_Capacity)
+            ReallocVector(m_Size ? m_Size * 2 : 1);
 
         m_Buffer[m_Size] = std::move(value);
         ++m_Size;
