@@ -202,6 +202,22 @@ class Vector {
         m_Size = 0;
     }
 
+    constexpr iterator insert(const_iterator pos, value_type &&value) {
+        size_type index = pos - begin();
+        if (index > m_Size)
+            throw std::out_of_range("Unable to insert into a position out of "
+                                    "range of begin() to end()");
+
+        if (m_Size == m_Capacity)
+            ReallocVector(m_Size ? m_Size * 2 : 1);
+
+        std::copy(begin() + index, end(), begin() + index + 1);
+        *(m_Buffer + index) = value;
+
+        ++m_Size;
+        return begin() + index;
+    }
+
     constexpr iterator insert(const_iterator pos, const_reference value) {
         size_type index = pos - begin();
         if (index > m_Size)
@@ -233,7 +249,7 @@ class Vector {
 
     constexpr void push_back(const_reference value) {
         if (m_Size == m_Capacity)
-            ReallocVector(m_Size ? m_Size * 2 : 1);
+            reserve(m_Size ? m_Size * 2 : 1);
 
         m_Buffer[m_Size] = value;
         ++m_Size;
@@ -241,7 +257,7 @@ class Vector {
 
     constexpr void push_back(value_type &&value) {
         if (m_Size == m_Capacity)
-            ReallocVector(m_Size ? m_Size * 2 : 1);
+            reserve(m_Size ? m_Size * 2 : 1);
 
         m_Buffer[m_Size] = std::move(value);
         ++m_Size;
@@ -288,7 +304,6 @@ class Vector {
 
     void ReallocVector(size_type new_capacity) {
         iterator tmp = alloc.allocate(new_capacity);
-
         for (size_type i = 0; i < m_Size; ++i)
             tmp[i] = std::move(m_Buffer[i]);
 
