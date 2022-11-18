@@ -1,5 +1,6 @@
 #include "../s21_vector.hpp"
 #include "gtest/gtest.h"
+#include <vector>
 
 // NOTE: max_size is not tested because the MacOS result differs from the
 // implementation discribed here
@@ -8,6 +9,8 @@
 struct B {
   public:
     int s;
+    B() : s{0} {
+    }
     explicit B(int str) : s(std::move(str)) {
         std::cout << " constructed\n";
     }
@@ -30,8 +33,10 @@ struct B {
 };
 
 struct A {
-  public:
     std::string s;
+    A() : s("") {
+    }
+
     explicit A(std::string str) : s(std::move(str)) {
         std::cout << " constructed\n";
     }
@@ -58,12 +63,12 @@ class VectorTest : public ::testing::Test {
     void SetUp() override {
     }
 
-    s21::Vector<int> vec0_{1, 2, 3, 4, 5, 6, 7, 8, 9};
-    s21::Vector<int> vec1_{9, 8, 7, 6, 5, 4, 3, 2, 1};
-    s21::Vector<int> vec2_{1};
-    s21::Vector<int> vec3_;
-    s21::Vector<A> vec4_;
-    s21::Vector<std::string> vec5_;
+    s21::vector<int> vec0_{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    s21::vector<int> vec1_{9, 8, 7, 6, 5, 4, 3, 2, 1};
+    s21::vector<int> vec2_{1};
+    s21::vector<int> vec3_;
+    s21::vector<A> vec4_;
+    s21::vector<std::string> vec5_;
 };
 
 // Gtest needs this function overload so had to put struct outside of SetUp
@@ -77,20 +82,20 @@ bool operator==(const B &lhs, const B &rhs) {
 }
 
 TEST_F(VectorTest, move_constructor) {
-    s21::Vector<int> v{std::move(vec0_)};
+    s21::vector<int> v{std::move(vec0_)};
     for (std::size_t i = 0; i < v.size(); ++i)
         ASSERT_EQ(v[i], i + 1);
 }
 
 TEST_F(VectorTest, move_assignment) {
-    s21::Vector<int> v;
+    s21::vector<int> v;
     v = std::move(vec0_);
     for (std::size_t i = 0; i < v.size(); ++i)
         ASSERT_EQ(v[i], i + 1);
 }
 
 TEST_F(VectorTest, copy_assignment) {
-    s21::Vector<int> v;
+    s21::vector<int> v;
     v = vec0_;
 
     ASSERT_EQ(vec0_[0], v[0]);
@@ -113,7 +118,7 @@ TEST_F(VectorTest, initializer_list_constructor) {
 }
 
 TEST_F(VectorTest, copy_constructor) {
-    s21::Vector<int> want{vec0_};
+    s21::vector<int> want{vec0_};
 
     for (std::size_t i = 0; i < vec0_.size(); ++i)
         ASSERT_EQ(vec0_[i], want[i]);
@@ -316,16 +321,16 @@ TEST_F(VectorTest, erase_edge1) {
 }
 
 TEST_F(VectorTest, erase_exception) {
-    s21::Vector<int> vec0_{1};
+    s21::vector<int> vec0_{1};
     ASSERT_ANY_THROW(vec0_.erase(vec0_.begin() + 1));
 }
 
 TEST_F(VectorTest, push_back_vector) {
-    s21::Vector<s21::Vector<int>> my;
-    std::vector<s21::Vector<int>> want;
+    s21::vector<s21::vector<int>> my;
+    std::vector<s21::vector<int>> want;
 
-    my.push_back(s21::Vector<int>{1, 2, 3});
-    want.push_back(s21::Vector<int>{1, 2, 3});
+    my.push_back(s21::vector<int>{1, 2, 3});
+    want.push_back(s21::vector<int>{1, 2, 3});
     // for (auto i = want.size() - 1; i < want.size(); --i)
     //     ASSERT_EQ(my[i], want[i]);
     //
@@ -334,7 +339,7 @@ TEST_F(VectorTest, push_back_vector) {
 }
 
 TEST_F(VectorTest, push_back_B) {
-    s21::Vector<B> vec6_;
+    s21::vector<B> vec6_;
     vec6_.push_back(B(3));
     vec6_.push_back(B(3));
     vec6_.push_back(B(3));
@@ -395,7 +400,7 @@ TEST_F(VectorTest, push_back) {
 }
 
 TEST_F(VectorTest, push_back_empty) {
-    s21::Vector<int> got;
+    s21::vector<int> got;
     got.push_back(69);
     std::vector<int> want;
     want.push_back(69);
@@ -420,7 +425,7 @@ TEST_F(VectorTest, pop_back) {
 }
 
 TEST_F(VectorTest, pop_empty) {
-    s21::Vector<int> got;
+    s21::vector<int> got;
     ASSERT_ANY_THROW(got.pop_back());
 }
 
