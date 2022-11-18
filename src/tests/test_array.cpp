@@ -5,9 +5,9 @@ class ArrayTest : public ::testing::Test {
   protected:
     void SetUp() override {
     }
-    const s21::Array<int, 5> arr1_{1, 2, 3, 4, 5};
-    s21::Array<int, 5> arr0_{1, 2, 3, 4, 5};
-    s21::Array<std::string, 1> arr2_{"hello"};
+    const s21::array<int, 5> arr1_{1, 2, 3, 4, 5};
+    s21::array<int, 5> arr0_{1, 2, 3, 4, 5};
+    s21::array<std::string, 1> arr2_{"hello"};
 };
 
 TEST_F(ArrayTest, initializer_list_constructor) {
@@ -16,21 +16,21 @@ TEST_F(ArrayTest, initializer_list_constructor) {
 }
 
 TEST_F(ArrayTest, copy_constructor) {
-    s21::Array<int, 5> arr1{arr0_};
+    s21::array<int, 5> arr1{arr0_};
 
     for (std::size_t i = 0; i < arr0_.size(); ++i)
         ASSERT_EQ(arr0_[i], arr1[i]);
 }
 
 TEST_F(ArrayTest, move_constructor) {
-    s21::Array<int, 5> arr1{std::move(arr0_)};
+    s21::array<int, 5> arr1{std::move(arr0_)};
 
     for (std::size_t i = 0; i < arr0_.size(); ++i)
         ASSERT_EQ(arr0_[i], arr1[i]);
 }
 
 TEST_F(ArrayTest, copy_assignment) {
-    s21::Array<int, 5> arr1;
+    s21::array<int, 5> arr1;
     arr1 = arr0_;
 
     for (std::size_t i = 0; i < arr0_.size(); ++i)
@@ -38,7 +38,7 @@ TEST_F(ArrayTest, copy_assignment) {
 }
 
 TEST_F(ArrayTest, move_assignment) {
-    s21::Array<int, 5> arr1;
+    s21::array<int, 5> arr1;
     arr1 = std::move(arr0_);
 
     for (std::size_t i = 0; i < arr0_.size(); ++i)
@@ -92,19 +92,19 @@ TEST_F(ArrayTest, max_size) {
 }
 
 TEST_F(ArrayTest, swap) {
-    s21::Array<int, 5> arr1{5, 5, 5, 5, 5};
+    s21::array<int, 5> arr1{5, 5, 5, 5, 5};
     std::array<int, 5> arr2{5, 5, 5, 5, 5};
     std::array<int, 5> arr3{1, 2, 3, 4, 5};
 
     arr2.swap(arr3);
     arr0_.swap(arr1);
 
-    for (s21::Array<int, 5>::size_type i = 0; i < arr0_.size(); ++i)
+    for (s21::array<int, 5>::size_type i = 0; i < arr0_.size(); ++i)
         ASSERT_EQ(arr0_[i], arr3[i]);
 }
 
 TEST_F(ArrayTest, swap_string) {
-    s21::Array<std::string, 1> arr1{"world"};
+    s21::array<std::string, 1> arr1{"world"};
     std::array<std::string, 1> arr2{"hello"};
     std::array<std::string, 1> arr3{"world"};
 

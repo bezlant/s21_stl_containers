@@ -21,7 +21,7 @@ enable_testing()
 
 file(GLOB SOURCES ./tests/*.cpp)
 add_executable(tests ${SOURCES})
-target_compile_options(tests PRIVATE -Wall -Werror -Wextra -Wpedantic)
+target_compile_options(tests PRIVATE -Wall -Werror -Wextra -Wpedantic -O0)
 
 target_link_libraries(tests GTest::gtest_main)
 
