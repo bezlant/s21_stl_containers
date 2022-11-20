@@ -125,3 +125,56 @@ TEST_F(ArrayTest, fill) {
 TEST_F(ArrayTest, empty) {
     ASSERT_FALSE(arr0_.empty());
 }
+
+TEST(array, test_all) {
+    s21::array<std::vector<int>, 10> a;
+    std::vector<int> v{1, 2, 3, 4, 5};
+    a.fill(v);
+
+    for (auto e : a)
+        ASSERT_EQ(e, v);
+
+    ASSERT_ANY_THROW(a[11]);
+
+    ASSERT_ANY_THROW(a.at(11));
+    ASSERT_EQ(a.front(), a[0]);
+    ASSERT_EQ(a.front(), *a.data());
+    ASSERT_EQ(a.back(), a[9]);
+    ASSERT_FALSE(a.empty());
+    ASSERT_EQ(a.size(), 10);
+    ASSERT_EQ(a.max_size(), 10);
+
+    std::vector<int> w{0, 0, 0, 0, 0};
+    s21::array<std::vector<int>, 10> b;
+    b.fill(w);
+    a.swap(b);
+
+    for (auto e : a)
+        ASSERT_EQ(e, w);
+
+    for (auto e : b)
+        ASSERT_EQ(e, v);
+}
+
+TEST(array, test_all_const) {
+    std::vector<int> v{1, 2, 3, 4, 5};
+    const s21::array<std::vector<int>, 10> a{v, v, v, v, v, v, v, v, v, v};
+
+    for (auto e : a)
+        ASSERT_EQ(e, v);
+
+    ASSERT_ANY_THROW(a[11]);
+    ASSERT_ANY_THROW(a.at(11));
+    ASSERT_EQ(a.front(), a[0]);
+    ASSERT_EQ(a.front(), *a.data());
+    ASSERT_EQ(a.back(), a[9]);
+    ASSERT_FALSE(a.empty());
+    ASSERT_EQ(a.size(), 10);
+    ASSERT_EQ(a.max_size(), 10);
+
+    s21::array<std::vector<int>, 10> b;
+    b.fill(v);
+
+    for (int i = 0; i < 10; i++)
+        ASSERT_EQ(a[i], b[i]);
+}

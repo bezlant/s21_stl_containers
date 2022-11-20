@@ -2,10 +2,6 @@
 #include "gtest/gtest.h"
 #include <vector>
 
-// NOTE: max_size is not tested because the MacOS result differs from the
-// implementation discribed here
-// https://en.cppreference.com/w/cpp/container/vector/max_size
-
 struct B {
   public:
     int s;
@@ -487,4 +483,94 @@ TEST_F(VectorTest, emplace) {
 
     ASSERT_EQ(vec5_.size(), want.size());
     ASSERT_EQ(vec5_.capacity(), want.capacity());
+}
+
+TEST(vector, test_all) {
+    s21::vector<std::string> vs21;
+    std::vector<std::string> vsstd;
+    for (size_t i = 0; i < 100; i++) {
+        vs21.push_back("aboba");
+        vsstd.push_back("aboba");
+    }
+
+    ASSERT_EQ(vs21.size(), vsstd.size());
+    ASSERT_EQ(vs21.capacity(), vsstd.capacity());
+
+    for (size_t i = 0; i < 30; i++) {
+        vs21.insert(vs21.begin() + 3, "aboba");
+        vsstd.insert(vsstd.begin() + 3, "aboba");
+    }
+
+    ASSERT_EQ(vs21.size(), vsstd.size());
+    ASSERT_EQ(vs21.capacity(), vsstd.capacity());
+
+    for (size_t i = 0; i < vs21.size(); ++i)
+        ASSERT_EQ(vs21[i], vsstd[i]);
+
+    for (auto *it = vs21.begin(); it != vs21.end(); ++it)
+        vs21.erase(it);
+    for (auto it = vsstd.begin(); it != vsstd.end(); ++it)
+        vsstd.erase(it);
+
+    ASSERT_EQ(vs21.size(), vsstd.size());
+    ASSERT_EQ(vs21.capacity(), vsstd.capacity());
+
+    for (size_t i = 0; i < 1234; i++) {
+        vs21.push_back("aboba");
+        vsstd.push_back("aboba");
+    }
+
+    ASSERT_EQ(vs21.size(), vsstd.size());
+    ASSERT_EQ(vs21.capacity(), vsstd.capacity());
+
+    vs21.reserve(2000);
+    vsstd.reserve(2000);
+
+    ASSERT_EQ(vs21.size(), vsstd.size());
+    ASSERT_EQ(vs21.capacity(), vsstd.capacity());
+
+    vs21.shrink_to_fit();
+    vsstd.shrink_to_fit();
+
+    ASSERT_EQ(vs21.size(), vsstd.size());
+    ASSERT_EQ(vs21.capacity(), vsstd.capacity());
+
+    vs21.clear();
+    vsstd.clear();
+
+    ASSERT_EQ(vs21.size(), vsstd.size());
+    ASSERT_EQ(vs21.capacity(), vsstd.capacity());
+
+    ASSERT_EQ(vs21.max_size(), std::numeric_limits<std::ptrdiff_t>::max());
+
+    ASSERT_ANY_THROW(vs21[10]);
+    ASSERT_ANY_THROW(vs21[-1]);
+    ASSERT_ANY_THROW(vs21.at(-1));
+}
+
+TEST(vector, test_all_const) {
+    const s21::vector<std::string> vs21{
+        "hello", "world", "help", "me", "make", "a", "decent", "choice", "?"};
+    const std::vector<std::string> vsstd{
+        "hello", "world", "help", "me", "make", "a", "decent", "choice", "?"};
+    ASSERT_EQ(vs21.size(), vsstd.size());
+    ASSERT_EQ(vs21.capacity(), vsstd.capacity());
+
+    auto itstd = vsstd.begin();
+    for (auto *it = vs21.begin(); it != vs21.end(); ++it) {
+        ASSERT_EQ(*it, *itstd++);
+    }
+
+    for (size_t i = 0; i < vs21.size(); ++i)
+        ASSERT_EQ(vs21[i], vsstd[i]);
+
+    ASSERT_EQ(vs21.size(), vsstd.size());
+    ASSERT_EQ(vs21.capacity(), vsstd.capacity());
+
+    ASSERT_EQ(std::string{"hello"}, vs21.front());
+    ASSERT_EQ(std::string{"?"}, vs21.back());
+
+    ASSERT_ANY_THROW(vs21[10]);
+    ASSERT_ANY_THROW(vs21[-1]);
+    ASSERT_ANY_THROW(vs21.at(-1));
 }
