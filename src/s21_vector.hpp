@@ -1,7 +1,6 @@
 #ifndef S21_VECTOR_H_
 #define S21_VECTOR_H_
 
-#include "s21_allocator.hpp"
 #include "s21_exceptions.hpp"
 #include <algorithm>
 #include <initializer_list>
@@ -104,7 +103,7 @@ class vector {
      * @param rhs Objects to steal resources from
      * @return Results of the move assignment
      */
-    constexpr vector &operator=(vector &&rhs) {
+    constexpr vector &operator=(vector &&rhs) noexcept {
         if (this != &rhs) {
             m_Size = std::exchange(rhs.m_Size, 0);
             m_Capacity = std::exchange(rhs.m_Capacity, 0);
@@ -480,18 +479,9 @@ class vector {
      * @param other container to exchange the contents with
      */
     constexpr void swap(vector &other) noexcept {
-        iterator tmp_buffer = m_Buffer;
-        size_type tmp_size = m_Size;
-        size_type tmp_capacity = m_Capacity;
-
-        m_Buffer = other.m_Buffer;
-        other.m_Buffer = tmp_buffer;
-
-        m_Size = other.m_Size;
-        other.m_Size = tmp_size;
-
-        m_Capacity = other.m_Capacity;
-        other.m_Capacity = tmp_capacity;
+        std::swap(m_Buffer, other.m_Buffer);
+        std::swap(m_Size, other.m_Size);
+        std::swap(m_Capacity, other.m_Capacity);
     }
 
     /**
