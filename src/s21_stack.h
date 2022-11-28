@@ -1,16 +1,15 @@
-#ifndef S21_STACK_H_
-#define S21_STACK_H_
+#ifndef S21_CONTAINERS_S21_CONTAINERS_S21_STACK_H_
+#define S21_CONTAINERS_S21_CONTAINERS_S21_STACK_H_
 
-#include <initializer_list>
 #include <algorithm>
-// HACK: Replace this with s21::list<T>
+#include <initializer_list>
+
 #include <list>
 
 namespace s21 {
 
-// HACK: Replace this with s21::list<T>
 template <typename T, typename Container = std::list<T>>
-class Stack {
+class stack {
   public:
     using value_type = T;
     using reference = T &;
@@ -19,7 +18,7 @@ class Stack {
 
     // Member functions
   public:
-    Stack() noexcept : s{} {
+    stack() noexcept : container_{} {
     }
 
     // Constructors below may look weird but, they will call the required
@@ -29,7 +28,8 @@ class Stack {
      *
      * @param init Elements an to initialize the stack with
      */
-    explicit Stack(std::initializer_list<value_type> const &items) : s{items} {
+    explicit stack(std::initializer_list<value_type> const &items)
+        : container_{items} {
     }
 
     /**
@@ -37,7 +37,7 @@ class Stack {
      *
      * @param rhs Object to copy from
      */
-    Stack(const Stack &rhs) : s{rhs.s} {
+    stack(const stack &rhs) : container_{rhs.container_} {
     }
 
     /**
@@ -45,7 +45,7 @@ class Stack {
      *
      * @param rhs Object to steal resources from
      */
-    Stack(Stack &&rhs) noexcept : s{std::move(rhs.s)} {
+    stack(stack &&rhs) noexcept : container_{std::move(rhs.container_)} {
     }
 
     /**
@@ -55,7 +55,7 @@ class Stack {
      * and the used storage is deallocated. Note, that if the elements are
      * pointers, the pointed-to objects are not destroyed.
      */
-    ~Stack() noexcept = default;
+    ~stack() noexcept = default;
 
     /**
      * @brief Copy assignment - copies all the elements from the given object
@@ -63,8 +63,8 @@ class Stack {
      * @param rhs Objects to copy elements from
      * @return Results of the copy assignment
      */
-    Stack &operator=(const Stack &other) {
-        s = other.s;
+    stack &operator=(const stack &other) {
+        container_ = other.container_;
         return *this;
     }
 
@@ -74,8 +74,8 @@ class Stack {
      * @param rhs Objects to steal resources from
      * @return Results of the move assignment
      */
-    Stack &operator=(Stack &&other) noexcept {
-        s = std::move(other.s);
+    stack &operator=(stack &&other) noexcept {
+        container_ = std::move(other.container_);
         return *this;
     }
 
@@ -90,7 +90,7 @@ class Stack {
      * @return Reference to the last element
      */
     reference top() noexcept {
-        return s.back();
+        return container_.back();
     }
 
     /**
@@ -102,7 +102,7 @@ class Stack {
      * @return Reference to the last element
      */
     const_reference top() const noexcept {
-        return s.back();
+        return container_.back();
     }
 
     // Capacity
@@ -114,7 +114,7 @@ class Stack {
      * @return True if empty, otherwise false
      */
     [[nodiscard]] bool empty() const noexcept {
-        return s.empty();
+        return container_.empty();
     }
 
     /**
@@ -123,8 +123,8 @@ class Stack {
      *
      * @return The number of elements in the container.
      */
-    size_type size() const noexcept {
-        return s.size();
+    [[nodiscard]] size_type size() const noexcept {
+        return container_.size();
     }
     // Stack Modifiers
     /**
@@ -134,7 +134,7 @@ class Stack {
      * @param value the value of the element to push
      */
     void push(const_reference value) {
-        s.push_back(value);
+        container_.push_back(value);
     }
 
     // Stack Modifiers
@@ -145,7 +145,7 @@ class Stack {
      * @param value the value of the element to push
      */
     void push(value_type &&value) {
-        s.push_back(std::move(value));
+        container_.push_back(std::move(value));
     }
 
     /**
@@ -153,7 +153,7 @@ class Stack {
      * s.pop_back()
      */
     void pop() noexcept {
-        s.pop_back();
+        container_.pop_back();
     }
 
     /**
@@ -162,8 +162,8 @@ class Stack {
      *
      * @param other Container adaptor to exchange the contents with
      */
-    void swap(Stack &other) noexcept {
-        std::swap(s, other.s);
+    void swap(stack &other) noexcept {
+        std::swap(container_, other.container_);
     }
 
     /**
@@ -178,14 +178,14 @@ class Stack {
      * Container::emplace_back
      */
     template <typename... Args>
-    decltype(auto) emplace_back(Args &&...args) {
-        return s.emplace_back(std::forward<Args>(args)...);
+    void emplace_front(Args &&...args) {
+        return container_.emplace_back(std::forward<Args>(args)...);
     }
 
   private:
-    Container s;
+    Container container_;
 };
 
 }  // namespace s21
 
-#endif  // S21_STACK_H_
+#endif  // S21_CONTAINERS_S21_CONTAINERS_S21_STACK_H_

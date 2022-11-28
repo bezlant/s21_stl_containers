@@ -1,5 +1,8 @@
-#include "../s21_array.hpp"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
+#include <array>
+
+#include "../s21_containers.h"
 
 class ArrayTest : public ::testing::Test {
   protected:
@@ -13,6 +16,9 @@ class ArrayTest : public ::testing::Test {
 TEST_F(ArrayTest, initializer_list_constructor) {
     for (std::size_t i = 0; i < arr0_.size(); ++i)
         ASSERT_EQ(arr0_[i], i + 1);
+}
+
+TEST_F(ArrayTest, initializer_list_constructor_throw) {
 }
 
 TEST_F(ArrayTest, copy_constructor) {
@@ -126,7 +132,7 @@ TEST_F(ArrayTest, empty) {
     ASSERT_FALSE(arr0_.empty());
 }
 
-TEST(array, test_all) {
+TEST(Array, test_all) {
     s21::array<std::vector<int>, 10> a;
     std::vector<int> v{1, 2, 3, 4, 5};
     a.fill(v);
@@ -156,9 +162,19 @@ TEST(array, test_all) {
         ASSERT_EQ(e, v);
 }
 
-TEST(array, test_all_const) {
+TEST(Array, test_all_const) {
     std::vector<int> v{1, 2, 3, 4, 5};
     const s21::array<std::vector<int>, 10> a{v, v, v, v, v, v, v, v, v, v};
+
+    // This will cause a compilation error with -Werror because the standard
+    // doesn't allow zero sized arrays
+    // Compiles properly without -Werror
+    // const s21::array<int, 0> constzerosized;
+    // ASSERT_ANY_THROW(constzerosized.front());
+    // ASSERT_ANY_THROW(constzerosized.back());
+    // s21::array<int, 0> zerosized;
+    // ASSERT_ANY_THROW(zerosized.front());
+    // ASSERT_ANY_THROW(zerosized.back());
 
     for (auto e : a)
         ASSERT_EQ(e, v);
@@ -177,4 +193,12 @@ TEST(array, test_all_const) {
 
     for (int i = 0; i < 10; i++)
         ASSERT_EQ(a[i], b[i]);
+}
+
+TEST(Array, exception) {
+    ASSERT_ANY_THROW((s21::array<int, 5>{1, 2, 3, 4, 5, 6, 7}));
+    ASSERT_ANY_THROW((s21::array<int, 1>{1, 2, 3, 4, 5, 6, 7}));
+    ASSERT_ANY_THROW((s21::array<int, 2>{1, 2, 3, 4, 5, 6, 7}));
+    ASSERT_ANY_THROW((s21::array<int, 3>{1, 2, 3, 4, 5, 6, 7}));
+    ASSERT_NO_THROW((s21::array<int, 7>{1, 2, 3, 4, 5, 6, 7}));
 }

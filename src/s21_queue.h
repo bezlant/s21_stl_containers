@@ -1,17 +1,14 @@
-#ifndef S21_QUEUE_H_
-#define S21_QUEUE_H_
+#ifndef S21_CONTAINERS_S21_CONTAINERS_S21_STACK_H_S21_QUEUE_H_
+#define S21_CONTAINERS_S21_CONTAINERS_S21_STACK_H_S21_QUEUE_H_
 
-#include <initializer_list>
 #include <algorithm>
-#include <queue>
-// HACK: Replace this with s21::list<T>
+#include <initializer_list>
 #include <list>
 
 namespace s21 {
 
-// HACK: Replace this with s21::list<T>
 template <typename T, typename Container = std::list<T>>
-class Queue {
+class queue {
   public:
     using value_type = T;
     using reference = T &;
@@ -20,7 +17,7 @@ class Queue {
 
     // Member functions
   public:
-    Queue() noexcept : q{} {
+    queue() noexcept : container_{} {
     }
 
     // Constructors below may look weird but, they will call the required
@@ -30,7 +27,8 @@ class Queue {
      *
      * @param init Elements an to initialize the queue with
      */
-    explicit Queue(std::initializer_list<value_type> const &items) : q{items} {
+    explicit queue(std::initializer_list<value_type> const &items)
+        : container_{items} {
     }
 
     /**
@@ -38,7 +36,7 @@ class Queue {
      *
      * @param rhs Object to copy from
      */
-    Queue(const Queue &rhs) : q{rhs.q} {
+    queue(const queue &rhs) : container_{rhs.container_} {
     }
 
     /**
@@ -46,7 +44,7 @@ class Queue {
      *
      * @param rhs Object to steal resources from
      */
-    Queue(Queue &&rhs) noexcept : q{std::move(rhs.q)} {
+    queue(queue &&rhs) noexcept : container_{std::move(rhs.container_)} {
     }
 
     /**
@@ -56,7 +54,7 @@ class Queue {
      * and the used storage is deallocated. Note, that if the elements are
      * pointers, the pointed-to objects are not destroyed.
      */
-    ~Queue() noexcept = default;
+    ~queue() noexcept = default;
 
     /**
      * @brief Copy assignment - copies all the elements from the given object
@@ -64,8 +62,8 @@ class Queue {
      * @param rhs Objects to copy elements from
      * @return Results of the copy assignment
      */
-    Queue &operator=(const Queue &other) {
-        q = other.q;
+    queue &operator=(const queue &other) {
+        container_ = other.container_;
         return *this;
     }
 
@@ -75,8 +73,8 @@ class Queue {
      * @param rhs Objects to steal resources from
      * @return Results of the move assignment
      */
-    Queue &operator=(Queue &&other) noexcept {
-        q = std::move(other.q);
+    queue &operator=(queue &&other) noexcept {
+        container_ = std::move(other.container_);
         return *this;
     }
 
@@ -91,7 +89,7 @@ class Queue {
      * @return Reference to the first element
      */
     reference front() noexcept {
-        return q.front();
+        return container_.front();
     }
 
     /**
@@ -102,7 +100,7 @@ class Queue {
      * @return Reference to the first element
      */
     const_reference front() const noexcept {
-        return q.front();
+        return container_.front();
     }
 
     /**
@@ -114,7 +112,7 @@ class Queue {
      * @return Reference to the last element
      */
     reference back() noexcept {
-        return q.back();
+        return container_.back();
     }
 
     /**
@@ -126,7 +124,7 @@ class Queue {
      * @return Reference to the last element
      */
     const_reference back() const noexcept {
-        return q.back();
+        return container_.back();
     }
     // Capacity
   public:
@@ -137,7 +135,7 @@ class Queue {
      * @return True if empty, otherwise false
      */
     [[nodiscard]] bool empty() const noexcept {
-        return q.empty();
+        return container_.empty();
     }
 
     /**
@@ -146,8 +144,8 @@ class Queue {
      *
      * @return The number of elements in the container.
      */
-    size_type size() const noexcept {
-        return q.size();
+    [[nodiscard]] size_type size() const noexcept {
+        return container_.size();
     }
     // Stack Modifiers
     /**
@@ -157,7 +155,7 @@ class Queue {
      * @param value the value of the element to push
      */
     void push(const_reference value) {
-        q.push_back(value);
+        container_.push_back(value);
     }
 
     /**
@@ -167,7 +165,7 @@ class Queue {
      * @param value the value of the element to push
      */
     void push(value_type &&value) {
-        q.push_back(std::move(value));
+        container_.push_back(std::move(value));
     }
 
     /**
@@ -175,7 +173,7 @@ class Queue {
      * q.pop_front()
      */
     void pop() noexcept {
-        q.pop_front();
+        container_.pop_front();
     }
 
     /**
@@ -184,8 +182,8 @@ class Queue {
      *
      * @param other Container adaptor to exchange the contents with
      */
-    void swap(Queue &other) noexcept {
-        std::swap(q, other.q);
+    void swap(queue &other) noexcept {
+        std::swap(container_, other.container_);
     }
 
     /**
@@ -200,14 +198,14 @@ class Queue {
      * Container::emplace_back
      */
     template <typename... Args>
-    decltype(auto) emplace_front(Args &&...args) {
-        return q.emplace_back(std::forward<Args>(args)...);
+    void emplace_back(Args &&...args) {
+        container_.emplace_back(std::forward<Args>(args)...);
     }
 
   private:
-    Container q;
+    Container container_;
 };
 
 }  // namespace s21
 
-#endif  // S21_QUEUE_H_
+#endif  // S21_CONTAINERS_S21_CONTAINERS_S21_STACK_H_S21_QUEUE_H_

@@ -1,6 +1,8 @@
-#include "../s21_vector.hpp"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
 #include <vector>
+
+#include "../s21_containers.h"
 
 struct B {
   public:
@@ -8,22 +10,17 @@ struct B {
     B() : s{0} {
     }
     explicit B(int str) : s(std::move(str)) {
-        std::cout << " constructed\n";
     }
     B(const B &o) : s(o.s) {
-        std::cout << " copy constructed\n";
     }
     B(B &&o) : s(std::move(o.s)) {
-        std::cout << " move constructed\n";
     }
     B &operator=(const B &other) {
         s = other.s;
-        std::cout << " copy assigned\n";
         return *this;
     }
     B &operator=(B &&other) {
         s = std::move(other.s);
-        std::cout << " move assigned\n";
         return *this;
     }
 };
@@ -34,22 +31,17 @@ struct A {
     }
 
     explicit A(std::string str) : s(std::move(str)) {
-        std::cout << " constructed\n";
     }
     A(const A &o) : s(o.s) {
-        std::cout << " copy constructed\n";
     }
     A(A &&o) : s(std::move(o.s)) {
-        std::cout << " move constructed\n";
     }
     A &operator=(const A &other) {
         s = other.s;
-        std::cout << " copy assigned\n";
         return *this;
     }
     A &operator=(A &&other) {
         s = std::move(other.s);
-        std::cout << " move assigned\n";
         return *this;
     }
 };
@@ -150,17 +142,6 @@ TEST_F(VectorTest, reserve) {
     ASSERT_EQ(vec0_.capacity(), s.capacity());
 }
 
-// Sanitizer doesn't like this test (error in stl, crashes the LINKER LMAO)
-// TEST_F(VectorTest, reserve_string) {
-//     std::vector<std::string> s{"Hello"};
-//     s21::Vector<std::string> ss{"Hello"};
-//     s.reserve(20);
-//     ss.reserve(20);
-//     ASSERT_EQ(ss.size(), s.size());
-//     ASSERT_EQ(ss.capacity(), s.capacity());
-//     ASSERT_EQ(s[0], ss[0]);
-// }
-
 TEST_F(VectorTest, shrink) {
     std::vector s{1, 2, 3, 4, 5, 6, 7, 8, 9};
     s.reserve(6969);
@@ -248,6 +229,8 @@ TEST_F(VectorTest, insert_realloc2) {
 }
 
 TEST_F(VectorTest, insert_realloc3) {
+    int abobus = 69;
+    ASSERT_ANY_THROW(vec0_.insert(vec0_.end() + 10, abobus));
     vec0_.insert(vec0_.end(), 0);
     std::vector<int> want{1, 2, 3, 4, 5, 6, 7, 8, 9};
     want.insert(want.end(), 0);
@@ -327,11 +310,6 @@ TEST_F(VectorTest, push_back_vector) {
 
     my.push_back(s21::vector<int>{1, 2, 3});
     want.push_back(s21::vector<int>{1, 2, 3});
-    // for (auto i = want.size() - 1; i < want.size(); --i)
-    //     ASSERT_EQ(my[i], want[i]);
-    //
-    // ASSERT_EQ(my.size(), want.size());
-    // ASSERT_EQ(my.capacity(), want.capacity());
 }
 
 TEST_F(VectorTest, push_back_B) {
@@ -447,15 +425,12 @@ TEST_F(VectorTest, emplace_back) {
 
     A two{"two"};
     A three{"three"};
+    A four{"four"};
 
-    want.emplace_back(three);
-    want.emplace_back(two);
-    want.emplace_back("one");
-    want.emplace_back("one");
-    vec4_.emplace_back(three);
-    vec4_.emplace_back(two);
-    vec4_.emplace_back("one");
-    vec4_.emplace_back("one");
+    want.push_back(three);
+    want.push_back(two);
+    want.push_back(four);
+    vec4_.emplace_back(three, two, four);
 
     for (std::size_t i = 0; i < want.size(); ++i) {
         ASSERT_EQ(vec4_[i], want[i]);
@@ -489,10 +464,12 @@ TEST(vector, test_all) {
     s21::vector<std::string> vs21;
     std::vector<std::string> vsstd;
     for (size_t i = 0; i < 100; i++) {
-        vs21.push_back("aboba");
-        vsstd.push_back("aboba");
+        vs21.push_back(std::string("aboba"));
+        vsstd.push_back(std::string("aboba"));
     }
 
+    ASSERT_EQ(vs21.front(), vsstd.front());
+    ASSERT_EQ(vs21.back(), vsstd.back());
     ASSERT_EQ(vs21.size(), vsstd.size());
     ASSERT_EQ(vs21.capacity(), vsstd.capacity());
 
@@ -541,7 +518,7 @@ TEST(vector, test_all) {
     ASSERT_EQ(vs21.size(), vsstd.size());
     ASSERT_EQ(vs21.capacity(), vsstd.capacity());
 
-    ASSERT_EQ(vs21.max_size(), std::numeric_limits<std::ptrdiff_t>::max());
+    ASSERT_EQ(vs21.max_size(), vsstd.max_size());
 
     ASSERT_ANY_THROW(vs21[10]);
     ASSERT_ANY_THROW(vs21[-1]);
@@ -561,6 +538,8 @@ TEST(vector, test_all_const) {
         ASSERT_EQ(*it, *itstd++);
     }
 
+    ASSERT_EQ(*vs21.data(), *vsstd.data());
+
     for (size_t i = 0; i < vs21.size(); ++i)
         ASSERT_EQ(vs21[i], vsstd[i]);
 
@@ -573,4 +552,19 @@ TEST(vector, test_all_const) {
     ASSERT_ANY_THROW(vs21[10]);
     ASSERT_ANY_THROW(vs21[-1]);
     ASSERT_ANY_THROW(vs21.at(-1));
+}
+
+TEST(vector, vzero) {
+    s21::vector<int> vzero;
+    const s21::vector<int> cvzero;
+    ASSERT_ANY_THROW(vzero.insert(vzero.begin() + 10, 69));
+    ASSERT_ANY_THROW(vzero.front());
+    ASSERT_ANY_THROW(vzero.back());
+    ASSERT_ANY_THROW(cvzero.front());
+    ASSERT_ANY_THROW(cvzero.back());
+}
+
+TEST(vector, reserve_exception) {
+    s21::vector<int> vzero;
+    ASSERT_ANY_THROW(vzero.reserve(vzero.max_size() + 1));
 }

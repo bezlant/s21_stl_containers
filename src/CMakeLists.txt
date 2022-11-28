@@ -19,7 +19,7 @@ find_package(GTest REQUIRED)
 include(GoogleTest)
 enable_testing()
 
-file(GLOB SOURCES ./tests/*.cpp)
+file(GLOB SOURCES ./tests/*.cc)
 add_executable(tests ${SOURCES})
 target_compile_options(tests PRIVATE -Wall -Werror -Wextra -Wpedantic -O0)
 
