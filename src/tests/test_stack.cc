@@ -231,13 +231,6 @@ TEST_F(StackTest, push_pop_top_empty_size) {
     ASSERT_TRUE(s0.empty());
 }
 
-// exceptions tests
-TEST_F(StackTest, exceptions) {
-    std::stack<int> s1;
-    ASSERT_NO_THROW(s1.pop());
-    ASSERT_NO_THROW(s1_.pop());
-}
-
 // tests for s21::stack class using std::stack as a reference for methods top,
 // pop, push, size, empty, size
 TEST_F(StackTest, top_pop_push_size_empty) {

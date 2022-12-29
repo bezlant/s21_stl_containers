@@ -235,14 +235,6 @@ TEST_F(QueueTest, push_pop_front_empty_size) {
     ASSERT_TRUE(s0.empty());
 }
 
-// exceptions tests
-TEST_F(QueueTest, exceptions) {
-    std::queue<int> s1;
-    ASSERT_NO_THROW(s1.pop());
-    ASSERT_NO_THROW(s1_.pop());
-}
-
-// tests for s21::queue class using std::queue as a reference for methods front,
 // pop, push, size, empty, size
 TEST_F(QueueTest, front_pop_push_size_empty) {
     std::queue<int> s0;

@@ -1,13 +1,13 @@
 #ifndef S21_CONTAINERS_S21_CONTAINERS_S21_STACK_H_S21_QUEUE_H_
 #define S21_CONTAINERS_S21_CONTAINERS_S21_STACK_H_S21_QUEUE_H_
 
+#include "s21_list.h"
 #include <algorithm>
 #include <initializer_list>
-#include <list>
 
 namespace s21 {
 
-template <typename T, typename Container = std::list<T>>
+template <typename T, typename Container = s21::list<T>>
 class queue {
   public:
     using value_type = T;
